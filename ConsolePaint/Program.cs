@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ConsolePaint;
+﻿using ConsolePaint;
 using ConsolePaint.Shapes;
 class Program
 {

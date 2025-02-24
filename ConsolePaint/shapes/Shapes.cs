@@ -1,6 +1,5 @@
-﻿namespace ConsolePaint.shapes
+﻿namespace ConsolePaint.Shapes
 {
-
     class Point : Shape
     {
         private int x, y;
