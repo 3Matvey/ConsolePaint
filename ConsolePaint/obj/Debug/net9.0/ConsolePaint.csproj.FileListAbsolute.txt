@@ -1,0 +1,14 @@
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\bin\Debug\net9.0\ConsolePaint.exe
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\bin\Debug\net9.0\ConsolePaint.deps.json
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\bin\Debug\net9.0\ConsolePaint.runtimeconfig.json
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\bin\Debug\net9.0\ConsolePaint.dll
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\bin\Debug\net9.0\ConsolePaint.pdb
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ConsolePaint.GeneratedMSBuildEditorConfig.editorconfig
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ConsolePaint.AssemblyInfoInputs.cache
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ConsolePaint.AssemblyInfo.cs
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ConsolePaint.csproj.CoreCompileInputs.cache
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ConsolePaint.dll
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\refint\ConsolePaint.dll
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ConsolePaint.pdb
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ConsolePaint.genruntimeconfig.cache
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ref\ConsolePaint.dll
