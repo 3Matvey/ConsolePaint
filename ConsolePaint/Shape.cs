@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ConsolePaint
 {
-    internal class shape
+    internal abstract class Shape
     {
+        public abstract void Draw(Canvas canvas);
     }
 }
