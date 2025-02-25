@@ -8,6 +8,27 @@ class Program
         var canvas = new Canvas(20, 20);
         canvas.Clear();
 
+        //while (true)
+        //{
+        //    Console.Clear();
+        //    canvas.Display();
+        //    Console.WriteLine("Введите команду (draw, clear, exit): ");
+        //    string command = Console.ReadLine().ToLower();
+
+        //    if (command == "exit")
+        //    {
+        //        break;
+        //    }
+        //    else if (command.StartsWith("draw"))
+        //    {
+        //        ProcessDrawCommand(canvas, command);
+        //    }
+        //    else if (command == "clear")
+        //    {
+        //        canvas.Clear();
+        //    }
+        //}
+
         while (true)
         {
             Console.Clear();
@@ -19,14 +40,43 @@ class Program
             {
                 break;
             }
-            else if (command.StartsWith("draw"))
+            else if (command == "draw")
             {
-                ProcessDrawCommand(canvas, command);
+                ShowDrawMenu();
+                string shapeCommand = Console.ReadLine().ToLower();
+                ProcessDrawCommand(canvas, shapeCommand);
             }
             else if (command == "clear")
             {
                 canvas.Clear();
             }
+        }
+    }
+
+    static string ShowDrawMenu()
+    {
+        Console.Clear();
+        Console.WriteLine("Выберите фигуру для рисования:");
+        Console.WriteLine("1. Point (точка)");
+        Console.WriteLine("2. Line (линия)");
+        Console.WriteLine("3. Rectangle (прямоугольник)");
+        Console.Write("Введите номер фигуры: ");
+
+        string choice = Console.ReadLine().ToLower();
+        switch (choice)
+        {
+            case "1":
+            case "point":
+                return "point";
+            case "2":
+            case "line":
+                return "line";
+            case "3":
+            case "rectangle":
+                return "rect";
+            default:
+                Console.WriteLine("Неверный выбор, попробуйте снова.");
+                return ShowDrawMenu(); // Повторный запрос выбора
         }
     }
 
