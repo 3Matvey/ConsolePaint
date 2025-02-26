@@ -12,3 +12,4 @@ M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\refint\ConsolePaint.
 M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ConsolePaint.pdb
 M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ConsolePaint.genruntimeconfig.cache
 M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ref\ConsolePaint.dll
+M:\OOP_4_sem\LR1\ConsolePaint\ConsolePaint\obj\Debug\net9.0\ConsolePaint.sourcelink.json

@@ -1,22 +1,52 @@
 ﻿namespace ConsolePaint.Shapes
 {
-    class Line(int x1, int y1, int x2, int y2, char symbol) : Shape
+    public class Line : Shape
     {
-        public override void Draw(Canvas canvas)
+        private int x1, y1, x2, y2;
+        private char symbol;
+        private ConsoleColor color;
+
+        public Line(int x1, int y1, int x2, int y2, char symbol, ConsoleColor color)
+            : base()
         {
-            // Простое рисование горизонтальных или вертикальных линий
-            if (x1 == x2)  // вертикальная линия
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
+            this.symbol = symbol;
+            this.color = color;
+            CalculatePixels();  // Изначально рассчитываем пиксели
+        }
+
+        // Метод для вычисления пикселей линии
+        public override void CalculatePixels()
+        {
+            // Очищаем старые пиксели
+            OuterPixels.Clear();
+            InnerPixels.Clear(); // Для линии внутренних пикселей нет
+
+            int dx = Math.Abs(x2 - x1);
+            int dy = Math.Abs(y2 - y1);
+            int sx = (x1 < x2) ? 1 : -1;
+            int sy = (y1 < y2) ? 1 : -1;
+            int err = dx - dy;
+
+            while (true)
             {
-                for (int y = y1; y <= y2; y++)
+                OuterPixels.Add(new Pixel(x1, y1, symbol, color));  // Добавляем пиксель на контур линии
+
+                if (x1 == x2 && y1 == y2) break;
+
+                int e2 = err * 2;
+                if (e2 > -dy)
                 {
-                    canvas.SetPixel(x1, y, symbol);
+                    err -= dy;
+                    x1 += sx;
                 }
-            }
-            else if (y1 == y2)  // горизонтальная линия
-            {
-                for (int x = x1; x <= x2; x++)
+                if (e2 < dx)
                 {
-                    canvas.SetPixel(x, y1, symbol);
+                    err += dx;
+                    y1 += sy;
                 }
             }
         }
