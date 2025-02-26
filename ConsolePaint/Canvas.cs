@@ -1,4 +1,4 @@
-﻿using ConsolePaint;
+﻿namespace ConsolePaint;
 
 public class Canvas
 {
@@ -29,34 +29,45 @@ public class Canvas
         }
     }
 
-    // Метод для сдвига фигуры на холсте
-    public void MoveShape(Shape shape, int dx, int dy)
+    // Метод для отрисовки рамки
+    public void DrawFrame()
     {
-        // Сдвигаем все пиксели фигуры
-        foreach (var pixel in  shape.OuterPixels)
+        // Рисуем верхнюю границу с номерами колонок
+        Console.SetCursorPosition(0, 4); // Отступим 4 строки для меню
+        Console.Write("  ");  // Отступ для координат
+        for (int i = 0; i < width; i++)
         {
-            pixel.X++; //+= dx;
-            pixel.Y += dy;
+            Console.Write($"{i % 10}");  // Номера колонок
+        }
+        Console.WriteLine();
+
+        // Рисуем левую границу с номерами строк
+        for (int y = 0; y < height; y++)
+        {
+            Console.SetCursorPosition(0, y + 5); // Отступим на 5 строк для меню и верхней границы
+            Console.Write($"{y % 10} ");  // Номера строк
+            for (int x = 0; x < width; x++)
+            {
+                Console.Write(" ");  // Пустое место для фигуры
+            }
         }
 
-        foreach (var pixel in shape.InnerPixels)
+        // Рисуем нижнюю границу с номерами колонок
+        Console.SetCursorPosition(0, height + 5);
+        Console.Write("  ");
+        for (int i = 0; i < width; i++)
         {
-            pixel.X += dx;
-            pixel.Y += dy;
+            Console.Write($"{i % 10}");  // Номера колонок
         }
-
-        // После сдвига пересчитываем пиксели фигуры
-        shape.CalculatePixels();
-        Draw(shape);  // Перерисовываем фигуру на холсте с новыми координатами
+        Console.WriteLine();
     }
 
-    // Метод для заливки фигуры
-    public void FillShape(Shape shape, char fillSymbol)
+    // Рисуем все фигуры
+    public void DrawShapes(List<Shape> shapes)
     {
-        // Заполняем внутренние пиксели новой заливкой
-        foreach (var pixel in shape.InnerPixels)
+        foreach (var shape in shapes)
         {
-            SetPixel(pixel.X, pixel.Y, fillSymbol, pixel.Color);
+            Draw(shape);  // Рисуем каждую фигуру
         }
     }
 
@@ -66,7 +77,7 @@ public class Canvas
         if (x >= 0 && x < width && y >= 0 && y < height)
         {
             pixels[x, y] = new Pixel(x, y, symbol, color);
-            Console.SetCursorPosition(x, y);
+            Console.SetCursorPosition(x + 1, y + 5);  // Смещаем на 1, чтобы не затереть границу
             Console.ForegroundColor = color;
             Console.Write(symbol);
         }
@@ -80,9 +91,10 @@ public class Canvas
             for (int j = 0; j < height; j++)
             {
                 pixels[i, j] = new Pixel(i, j, ' ', ConsoleColor.Black);  // Инициализация пустыми пикселями
-                Console.SetCursorPosition(i, j);
+                Console.SetCursorPosition(i + 1, j + 5);  // Смещаем на 1, чтобы не затереть границу
                 Console.Write(' ');
             }
         }
     }
 }
+

@@ -46,5 +46,12 @@
       <FileName>Pixel.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="ConsolePaint.Canvas">
+    <Position X="9" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAgUAQAAAAAAAAAAAAAAgAAAAAgBAAAA=</HashCode>
+      <FileName>Canvas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

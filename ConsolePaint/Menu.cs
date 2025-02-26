@@ -18,11 +18,13 @@ namespace ConsolePaint
         {
             while (true)
             {
+                // Очищаем экран и рисуем меню
                 Console.Clear();
-                Console.WriteLine("Выберите команду:");
-                Console.WriteLine("1. Нарисовать фигуру (draw)");
-                Console.WriteLine("2. Очистить холст (clear)");
-                Console.WriteLine("3. Выйти (exit)");
+                DrawMenu();  // Рисуем меню в верхней части экрана
+
+                // Теперь рисуем холст
+                canvas.DrawFrame();  // Рисуем рамку вокруг холста
+                canvas.DrawShapes(shapes);  // Отображаем все фигуры
 
                 string choice = Console.ReadLine().ToLower();
 
@@ -44,10 +46,22 @@ namespace ConsolePaint
             }
         }
 
+        // Рисуем меню в верхней части экрана
+        private void DrawMenu()
+        {
+            Console.WriteLine("Выберите команду:");
+            Console.WriteLine("1. Нарисовать фигуру (draw)");
+            Console.WriteLine("2. Очистить холст (clear)");
+            Console.WriteLine("3. Выйти (exit)");
+            Console.WriteLine();  // Пустая строка для разделения меню и холста
+        }
+
         // Метод для обработки команды рисования
         private void HandleDrawCommand()
         {
             Console.Clear();
+            DrawMenu();  // Рисуем меню в верхней части экрана
+
             Console.WriteLine("Выберите фигуру для рисования:");
             Console.WriteLine("1. Линия");
             Console.WriteLine("2. Точка");
@@ -59,13 +73,13 @@ namespace ConsolePaint
             switch (shapeChoice)
             {
                 case "1":
-                    shape = CreateLine();
+                    shape = CreateLine();  // Передаем параметры для создания линии
                     break;
                 case "2":
-                    shape = CreatePoint();
+                    shape = CreatePoint();  // Передаем параметры для создания точки
                     break;
                 case "3":
-                    shape = CreateRectangle();
+                    shape = CreateRectangle();  // Передаем параметры для создания прямоугольника
                     break;
                 default:
                     Console.WriteLine("Некорректный выбор. Попробуйте снова.");
@@ -76,7 +90,7 @@ namespace ConsolePaint
             canvas.Draw(shape);  // Рисуем фигуру на холсте
         }
 
-        // Метод для создания линии
+        // Методы для создания фигур (аналогично предыдущим)
         private Shape CreateLine()
         {
             Console.WriteLine("Введите координаты начала линии (x1, y1):");
@@ -94,10 +108,10 @@ namespace ConsolePaint
             string colorInput = Console.ReadLine();
             ConsoleColor color = Enum.TryParse(colorInput, true, out color) ? color : ConsoleColor.White;
 
+            // Используем фабрику для создания линии
             return ShapeFactory.CreateLine(x1, y1, x2, y2, symbol, color);
         }
 
-        // Метод для создания точки
         private Shape CreatePoint()
         {
             Console.WriteLine("Введите координаты точки (x, y):");
@@ -111,10 +125,10 @@ namespace ConsolePaint
             string colorInput = Console.ReadLine();
             ConsoleColor color = Enum.TryParse(colorInput, true, out color) ? color : ConsoleColor.White;
 
+            // Используем фабрику для создания точки
             return ShapeFactory.CreatePoint(x, y, symbol, color);
         }
 
-        // Метод для создания прямоугольника
         private Shape CreateRectangle()
         {
             Console.WriteLine("Введите координаты верхнего левого угла прямоугольника (x1, y1):");
@@ -132,6 +146,7 @@ namespace ConsolePaint
             string colorInput = Console.ReadLine();
             ConsoleColor color = Enum.TryParse(colorInput, true, out color) ? color : ConsoleColor.White;
 
+            // Используем фабрику для создания прямоугольника
             return ShapeFactory.CreateRectangle(x1, y1, x2, y2, symbol, color);
         }
     }
