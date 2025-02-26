@@ -1,24 +1,23 @@
-﻿namespace ConsolePaint
+﻿using System;
+using System.Collections.Generic;
+
+namespace ConsolePaint
 {
     public abstract class Shape
     {
-        public int Id { get; private set; }
-        protected static int idCounter = 0;
-        protected char Symbol;
+        public int Id { get; }  // Уникальный идентификатор для каждой фигуры
+        private static int idCounter = 0;   // Счётчик для генерации ID
+        public List<Pixel> OuterPixels { get; private set; }
+        public List<Pixel> InnerPixels { get; private set; }
 
-        public Shape(char symbol)
+        public Shape()
         {
             Id = idCounter++;
-            Symbol = symbol;
+            OuterPixels = [];  // Инициализация списка
+            InnerPixels = [];  // Инициализация списка
         }
 
-        // Метод для рисования фигуры на холсте
-        public abstract void Draw(Canvas canvas);
-
-        // Метод для перемещения фигуры
-        public abstract void Move(int dx, int dy);
-
-        // Метод для заливки фигуры
-        public abstract void Fill(Canvas canvas, char fillSymbol);
+        // Метод для вычисления пикселей фигуры (сделаем его публичным)
+        public abstract void CalculatePixels();
     }
 }
