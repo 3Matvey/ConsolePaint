@@ -1,4 +1,4 @@
-﻿namespace ConsolePaint;
+﻿using ConsolePaint;
 
 public class Canvas
 {
@@ -10,91 +10,119 @@ public class Canvas
     {
         this.width = width;
         this.height = height;
-        pixels = new Pixel[width, height];  // Инициализация холста
+        pixels = new Pixel[width, height];
+
+        DrawFrame();
     }
 
-    // Метод для рисования фигуры на холсте
-    public void Draw(Shape shape)
-    {
-        // Рисуем внешние пиксели (OuterPixels)
-        foreach (var pixel in shape.OuterPixels)
-        {
-            SetPixel(pixel.X, pixel.Y, pixel.Symbol, pixel.Color);
-        }
-
-        // Рисуем внутренние пиксели (InnerPixels)
-        foreach (var pixel in shape.InnerPixels)
-        {
-            SetPixel(pixel.X, pixel.Y, pixel.Symbol, pixel.Color);
-        }
-    }
-
-    // Метод для отрисовки рамки
+    /// <summary>
+    /// Рисуем ASCII-рамку:
+    ///  - Верхняя граница на строке 0
+    ///  - Внутренняя область строк: 1..height
+    ///  - Нижняя граница на строке (height + 1)
+    ///  - Левая граница на столбце 0, правая — (width + 1)
+    /// Итого реальных строк в консоли = height + 2, столбцов = width + 2.
+    /// </summary>
     public void DrawFrame()
     {
-        // Рисуем верхнюю границу с номерами колонок
-        Console.SetCursorPosition(0, 4); // Отступим 4 строки для меню
-        Console.Write("  ");  // Отступ для координат
+        // Верхняя граница
+        Console.SetCursorPosition(0, 0);
+        Console.Write(" ");
         for (int i = 0; i < width; i++)
         {
-            Console.Write($"{i % 10}");  // Номера колонок
+            Console.Write("_");
         }
         Console.WriteLine();
 
-        // Рисуем левую границу с номерами строк
+        // Боковые границы
         for (int y = 0; y < height; y++)
         {
-            Console.SetCursorPosition(0, y + 5); // Отступим на 5 строк для меню и верхней границы
-            Console.Write($"{y % 10} ");  // Номера строк
+            Console.SetCursorPosition(0, y + 1);
+            Console.Write("|");
+            // Пустая область внутри
             for (int x = 0; x < width; x++)
             {
-                Console.Write(" ");  // Пустое место для фигуры
+                Console.Write(" ");
             }
+            Console.Write("|");
         }
 
-        // Рисуем нижнюю границу с номерами колонок
-        Console.SetCursorPosition(0, height + 5);
-        Console.Write("  ");
+        // Нижняя граница
+        Console.SetCursorPosition(0, height + 1);
+        Console.Write(" ");
         for (int i = 0; i < width; i++)
         {
-            Console.Write($"{i % 10}");  // Номера колонок
+            Console.Write("_");
         }
         Console.WriteLine();
     }
 
-    // Рисуем все фигуры
+    // Отрисовка уже созданных фигур
     public void DrawShapes(List<Shape> shapes)
     {
         foreach (var shape in shapes)
         {
-            Draw(shape);  // Рисуем каждую фигуру
+            Draw(shape);
         }
     }
 
-    // Метод для установки пикселя на холсте
-    private void SetPixel(int x, int y, char symbol, ConsoleColor color)
+    // Отрисовка одной фигуры
+    public void Draw(Shape shape)
+    {
+        // Внешние пиксели
+        foreach (var p in shape.OuterPixels)
+        {
+            SetPixel(p.X, p.Y, p.Symbol, p.Color);
+        }
+        // Внутренние пиксели
+        foreach (var p in shape.InnerPixels)
+        {
+            SetPixel(p.X, p.Y, p.Symbol, p.Color);
+        }
+    }
+
+    // Устанавливаем пиксель (x,y) внутри рамки
+    public void SetPixel(int x, int y, char symbol, ConsoleColor color)
     {
         if (x >= 0 && x < width && y >= 0 && y < height)
         {
+            // Создаём объект пикселя и записываем в массив
             pixels[x, y] = new Pixel(x, y, symbol, color);
-            Console.SetCursorPosition(x + 1, y + 5);  // Смещаем на 1, чтобы не затереть границу
+
+            // Смещаем курсор в консоли (x+1, y+1), чтобы не затирать рамку
+            Console.SetCursorPosition(x + 1, y + 1);
             Console.ForegroundColor = color;
             Console.Write(symbol);
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 
-    // Очистка холста
+    // Очистка холста (внутренней области)
     public void Clear()
     {
-        for (int i = 0; i < width; i++)
+        for (int x = 0; x < width; x++)
         {
-            for (int j = 0; j < height; j++)
+            for (int y = 0; y < height; y++)
             {
-                pixels[i, j] = new Pixel(i, j, ' ', ConsoleColor.Black);  // Инициализация пустыми пикселями
-                Console.SetCursorPosition(i + 1, j + 5);  // Смещаем на 1, чтобы не затереть границу
+                pixels[x, y] = new Pixel(x, y, ' ', ConsoleColor.Black);
+                Console.SetCursorPosition(x + 1, y + 1);
                 Console.Write(' ');
             }
         }
     }
-}
+    public Pixel GetPixel(int x, int y)
+    {
+        if (x >= 0 && x < width && y >= 0 && y < height)
+        {
+            // Если в массиве ещё нет пикселя, вернём «пустой»
+            if (pixels[x, y] == null)
+            {
+                return new Pixel(x, y, ' ', ConsoleColor.Black);
+            }
+            return pixels[x, y];
+        }
+        // Если вышли за границы холста — тоже возвращаем «пустой»
+        return new Pixel(x, y, ' ', ConsoleColor.Black);
+    }
 
+}

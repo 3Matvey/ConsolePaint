@@ -1,153 +1,158 @@
-﻿using ConsolePaint.Shapes;
+﻿using System;
+using System.Collections.Generic;
+using ConsolePaint.Shapes;
 
 namespace ConsolePaint
 {
     public class Menu
     {
         private Canvas canvas;
-        private List<Shape> shapes;  // Список созданных фигур
+        private List<Shape> shapes;
 
         public Menu(Canvas canvas)
         {
             this.canvas = canvas;
-            this.shapes = new List<Shape>();
+            shapes = new List<Shape>();
         }
 
-        // Метод для отображения и обработки команд
+        // Выводит меню и обрабатывает команды.
         public void ShowMenu()
         {
-            while (true)
-            {
-                // Очищаем экран и рисуем меню
-                Console.Clear();
-                DrawMenu();  // Рисуем меню в верхней части экрана
-
-                // Теперь рисуем холст
-                canvas.DrawFrame();  // Рисуем рамку вокруг холста
-                canvas.DrawShapes(shapes);  // Отображаем все фигуры
-
-                string choice = Console.ReadLine().ToLower();
-
-                switch (choice)
-                {
-                    case "1":
-                        HandleDrawCommand();
-                        break;
-                    case "2":
-                        canvas.Clear();
-                        shapes.Clear();  // Очищаем список фигур
-                        break;
-                    case "3":
-                        return;  // Выход из программы
-                    default:
-                        Console.WriteLine("Некорректный ввод. Попробуйте снова.");
-                        break;
-                }
-            }
-        }
-
-        // Рисуем меню в верхней части экрана
-        private void DrawMenu()
-        {
+            Console.Clear();
+            DrawMenuHeader();
             Console.WriteLine("Выберите команду:");
             Console.WriteLine("1. Нарисовать фигуру (draw)");
             Console.WriteLine("2. Очистить холст (clear)");
             Console.WriteLine("3. Выйти (exit)");
-            Console.WriteLine();  // Пустая строка для разделения меню и холста
+            string choice = Console.ReadLine().ToLower();
+
+            switch (choice)
+            {
+                case "1":
+                    HandleDrawCommand();
+                    break;
+                case "2":
+                    canvas.Clear();
+                    shapes.Clear();
+                    break;
+                case "3":
+                    Environment.Exit(0);
+                    break;
+                default:
+                    Console.WriteLine("Некорректный ввод. Нажмите Enter для продолжения.");
+                    Console.ReadLine();
+                    break;
+            }
         }
 
-        // Метод для обработки команды рисования
+        // Обрабатывает команду создания фигуры.
         private void HandleDrawCommand()
         {
             Console.Clear();
-            DrawMenu();  // Рисуем меню в верхней части экрана
-
-            Console.WriteLine("Выберите фигуру для рисования:");
+            DrawMenuHeader();
+            Console.WriteLine("Выберите тип фигуры:");
             Console.WriteLine("1. Линия");
             Console.WriteLine("2. Точка");
             Console.WriteLine("3. Прямоугольник");
-
-            string shapeChoice = Console.ReadLine().ToLower();
-
+            string choice = Console.ReadLine().ToLower();
             Shape shape = null;
-            switch (shapeChoice)
+
+            switch (choice)
             {
                 case "1":
-                    shape = CreateLine();  // Передаем параметры для создания линии
+                    shape = CreateLine();
                     break;
                 case "2":
-                    shape = CreatePoint();  // Передаем параметры для создания точки
+                    shape = CreatePoint();
                     break;
                 case "3":
-                    shape = CreateRectangle();  // Передаем параметры для создания прямоугольника
+                    shape = CreateRectangle();
                     break;
                 default:
-                    Console.WriteLine("Некорректный выбор. Попробуйте снова.");
+                    Console.WriteLine("Некорректный выбор. Нажмите Enter для продолжения.");
+                    Console.ReadLine();
                     return;
             }
 
-            shapes.Add(shape);  // Добавляем фигуру в список
-            canvas.Draw(shape);  // Рисуем фигуру на холсте
+            shapes.Add(shape);
+            canvas.Draw(shape);
+            Console.WriteLine("Фигура создана. Нажмите Enter для продолжения.");
+            Console.ReadLine();
         }
 
-        // Методы для создания фигур (аналогично предыдущим)
         private Shape CreateLine()
         {
-            Console.WriteLine("Введите координаты начала линии (x1, y1):");
-            int x1 = int.Parse(Console.ReadLine());
-            int y1 = int.Parse(Console.ReadLine());
+            Console.WriteLine("Введите координаты начала линии (x1 y1):");
+            string[] parts = Console.ReadLine().Split();
+            int x1 = int.Parse(parts[0]);
+            int y1 = int.Parse(parts[1]);
 
-            Console.WriteLine("Введите координаты конца линии (x2, y2):");
-            int x2 = int.Parse(Console.ReadLine());
-            int y2 = int.Parse(Console.ReadLine());
+            Console.WriteLine("Введите координаты конца линии (x2 y2):");
+            parts = Console.ReadLine().Split();
+            int x2 = int.Parse(parts[0]);
+            int y2 = int.Parse(parts[1]);
 
             Console.WriteLine("Введите символ для линии (по умолчанию '*'):");
-            char symbol = Console.ReadLine().Length > 0 ? Console.ReadLine()[0] : '*';
+            string input = Console.ReadLine();
+            char symbol = string.IsNullOrEmpty(input) ? '*' : input[0];
 
-            Console.WriteLine("Введите цвет для линии (по умолчанию White):");
-            string colorInput = Console.ReadLine();
-            ConsoleColor color = Enum.TryParse(colorInput, true, out color) ? color : ConsoleColor.White;
+            Console.WriteLine("Введите цвет для линии (например, Red) (по умолчанию White):");
+            input = Console.ReadLine();
+            ConsoleColor color = Enum.TryParse(input, true, out color) ? color : ConsoleColor.White;
 
-            // Используем фабрику для создания линии
             return ShapeFactory.CreateLine(x1, y1, x2, y2, symbol, color);
         }
 
         private Shape CreatePoint()
         {
-            Console.WriteLine("Введите координаты точки (x, y):");
-            int x = int.Parse(Console.ReadLine());
-            int y = int.Parse(Console.ReadLine());
+            Console.WriteLine("Введите координаты точки (x y):");
+            string[] parts = Console.ReadLine().Split();
+            int x = int.Parse(parts[0]);
+            int y = int.Parse(parts[1]);
 
             Console.WriteLine("Введите символ для точки (по умолчанию '*'):");
-            char symbol = Console.ReadLine().Length > 0 ? Console.ReadLine()[0] : '*';
+            string input = Console.ReadLine();
+            char symbol = string.IsNullOrEmpty(input) ? '*' : input[0];
 
-            Console.WriteLine("Введите цвет для точки (по умолчанию White):");
-            string colorInput = Console.ReadLine();
-            ConsoleColor color = Enum.TryParse(colorInput, true, out color) ? color : ConsoleColor.White;
+            Console.WriteLine("Введите цвет для точки (например, Green) (по умолчанию White):");
+            input = Console.ReadLine();
+            ConsoleColor color = Enum.TryParse(input, true, out color) ? color : ConsoleColor.White;
 
-            // Используем фабрику для создания точки
             return ShapeFactory.CreatePoint(x, y, symbol, color);
         }
 
         private Shape CreateRectangle()
         {
-            Console.WriteLine("Введите координаты верхнего левого угла прямоугольника (x1, y1):");
-            int x1 = int.Parse(Console.ReadLine());
-            int y1 = int.Parse(Console.ReadLine());
+            Console.WriteLine("Введите координаты верхнего левого угла (x1 y1):");
+            string[] parts = Console.ReadLine().Split();
+            int x1 = int.Parse(parts[0]);
+            int y1 = int.Parse(parts[1]);
 
-            Console.WriteLine("Введите координаты нижнего правого угла прямоугольника (x2, y2):");
-            int x2 = int.Parse(Console.ReadLine());
-            int y2 = int.Parse(Console.ReadLine());
+            Console.WriteLine("Введите координаты нижнего правого угла (x2 y2):");
+            parts = Console.ReadLine().Split();
+            int x2 = int.Parse(parts[0]);
+            int y2 = int.Parse(parts[1]);
 
             Console.WriteLine("Введите символ для прямоугольника (по умолчанию '#'):");
-            char symbol = Console.ReadLine().Length > 0 ? Console.ReadLine()[0] : '#';
+            string input = Console.ReadLine();
+            char symbol = string.IsNullOrEmpty(input) ? '#' : input[0];
 
-            Console.WriteLine("Введите цвет для прямоугольника (по умолчанию White):");
-            string colorInput = Console.ReadLine();
-            ConsoleColor color = Enum.TryParse(colorInput, true, out color) ? color : ConsoleColor.White;
+            Console.WriteLine("Введите цвет для прямоугольника (например, Blue) (по умолчанию White):");
+            input = Console.ReadLine();
+            ConsoleColor color = Enum.TryParse(input, true, out color) ? color : ConsoleColor.White;
 
-            // Используем фабрику для создания прямоугольника
             return ShapeFactory.CreateRectangle(x1, y1, x2, y2, symbol, color);
+        }
+
+        private void DrawMenuHeader()
+        {
+            Console.WriteLine("=== Меню фигур ===");
+        }
+
+        // Позволяет получить список созданных фигур для отрисовки в Terminal.
+        public List<Shape> GetShapes()
+        {
+            return shapes;
         }
     }
 }

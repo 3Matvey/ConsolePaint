@@ -1,102 +1,148 @@
-﻿using System;
-using System.Collections.Generic;
-using ConsolePaint.Shapes;
+﻿namespace ConsolePaint;
 
-namespace ConsolePaint
+public class Terminal
 {
-    public class Terminal
+    private Canvas canvas;
+    private Menu menu;
+
+    private int cursorX;
+    private int cursorY;
+    private int canvasWidth;
+    private int canvasHeight;
+
+    // Храним список фигур в Menu (или внутри Canvas), 
+    // здесь предполагается, что Menu хранит фигуры и возвращает их методом GetShapes().
+
+    public Terminal(int canvasWidth, int canvasHeight)
     {
-        private Canvas canvas;
-        private Menu menu;
-        private int cursorX;
-        private int cursorY;
-        private int canvasWidth;
-        private int canvasHeight;
+        this.canvasWidth = canvasWidth;
+        this.canvasHeight = canvasHeight;
+        canvas = new Canvas(canvasWidth, canvasHeight);
+        menu = new Menu(canvas);
 
-        public Terminal(int canvasWidth, int canvasHeight)
+        // Изначально ставим курсор в (0,0) внутри холста
+        cursorX = 0;
+        cursorY = 0;
+    }
+
+    public void Run()
+    {
+        Console.Clear();
+        // Первичная отрисовка:
+        canvas.DrawFrame();                // Рамка
+        canvas.DrawShapes(menu.GetShapes()); // Фигуры
+        DrawMenu();                       // Меню
+        DrawCursor();                     // Курсор
+
+        while (true)
         {
-            this.canvasWidth = canvasWidth;
-            this.canvasHeight = canvasHeight;
-            canvas = new Canvas(canvasWidth, canvasHeight);
-            menu = new Menu(canvas);
-            // Инициализируем курсор в левом верхнем углу холста
-            cursorX = 0;
-            cursorY = 0;
-        }
+            ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 
-        public void Run()
-        {
-            Console.Clear();
-            // Первичная отрисовка: рамка холста и меню
-            canvas.DrawFrame();
-            DrawMenu();
-            DrawCursor();
-
-            while (true)
+            switch (keyInfo.Key)
             {
-                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
-                bool updateDisplay = false;
+                case ConsoleKey.UpArrow:
+                    MoveCursor(0, -1);
+                    break;
+                case ConsoleKey.DownArrow:
+                    MoveCursor(0, 1);
+                    break;
+                case ConsoleKey.LeftArrow:
+                    MoveCursor(-1, 0);
+                    break;
+                case ConsoleKey.RightArrow:
+                    MoveCursor(1, 0);
+                    break;
 
-                switch (keyInfo.Key)
-                {
-                    case ConsoleKey.UpArrow:
-                        if (cursorY > 0) { cursorY--; updateDisplay = true; }
-                        break;
-                    case ConsoleKey.DownArrow:
-                        if (cursorY < canvasHeight - 1) { cursorY++; updateDisplay = true; }
-                        break;
-                    case ConsoleKey.LeftArrow:
-                        if (cursorX > 0) { cursorX--; updateDisplay = true; }
-                        break;
-                    case ConsoleKey.RightArrow:
-                        if (cursorX < canvasWidth - 1) { cursorX++; updateDisplay = true; }
-                        break;
-                    case ConsoleKey.D:
-                        // Вызываем меню для создания новой фигуры
-                        menu.ShowMenu();
-                        updateDisplay = true;
-                        break;
-                    case ConsoleKey.Escape:
-                        return; // Выход из приложения
-                }
+                case ConsoleKey.D:
+                    // Полное обновление экрана после вызова меню
+                    HandleMenuCall();
+                    break;
 
-                if (updateDisplay)
-                {
-                    // Перерисовываем рамку и меню, затем курсор
-                    canvas.DrawFrame();
-                    DrawMenu();
-                    DrawCursor();
-                }
+                case ConsoleKey.Escape:
+                    return; // Выход из приложения
             }
         }
+    }
 
-        // Метод для отрисовки меню под холстом
-        private void DrawMenu()
-        {
-            // Предположим, что рамка холста занимает canvasHeight + 5 строк
-            int menuRow = canvasHeight + 6;
-            Console.SetCursorPosition(0, menuRow);
-            Console.WriteLine("Меню: [D] - Нарисовать фигуру, [Esc] - Выход. Используйте стрелки для перемещения курсора.");
-        }
+    /// <summary>
+    /// Частично обновляем только курсор.
+    /// 1) Стираем старый курсор
+    /// 2) Изменяем координаты (с учётом ограничений)
+    /// 3) Рисуем курсор на новом месте
+    /// </summary>
+    private void MoveCursor(int dx, int dy)
+    {
+        // Стираем старый курсор
+        EraseCursor();
 
-        // Метод для отрисовки курсора на холсте
-        private void DrawCursor()
-        {
-            // Сохраняем текущую позицию курсора
-            int prevLeft = Console.CursorLeft;
-            int prevTop = Console.CursorTop;
+        // Меняем координаты (с ограничениями)
+        cursorX = Math.Max(0, Math.Min(cursorX + dx, canvasWidth - 1));
+        cursorY = Math.Max(0, Math.Min(cursorY + dy, canvasHeight - 1));
 
-            // Вычисляем позицию на экране с учётом смещения рамки (рамка начинается с позиции (1,5))
-            int drawX = cursorX + 1;
-            int drawY = cursorY + 5;
+        // Рисуем новый курсор
+        DrawCursor();
+    }
 
-            Console.SetCursorPosition(drawX, drawY);
-            Console.ForegroundColor = ConsoleColor.Yellow; // Цвет курсора
-            Console.Write("_");  // Символ курсора
-            Console.ForegroundColor = ConsoleColor.White;
+    /// <summary>
+    /// При вызове меню (например, создание фигур), 
+    /// мы делаем полную перерисовку экрана (рамка, фигуры, меню, курсор).
+    /// </summary>
+    private void HandleMenuCall()
+    {
+        // Меню может добавить новые фигуры, очистить холст и т.д.
+        menu.ShowMenu();
 
-            // Восстанавливаем предыдущую позицию курсора (опционально)
-            Console.SetCursorPosition(prevLeft, prevTop);
-        }
+        // Полностью обновляем отображение:
+        Console.Clear();
+        canvas.DrawFrame();
+        canvas.DrawShapes(menu.GetShapes());
+        DrawMenu();
+        DrawCursor();
+    }
+
+    // Стираем курсор, возвращая символ, который там был
+    private void EraseCursor()
+    {
+        // Получаем пиксель, который сейчас хранится в Canvas на месте старого курсора
+        Pixel oldPixel = canvas.GetPixel(cursorX, cursorY);
+
+        // Перемещаем курсор консоли в позицию (cursorX+1, cursorY+1)
+        Console.SetCursorPosition(cursorX + 1, cursorY + 1);
+
+        // Ставим цвет пикселя
+        Console.ForegroundColor = oldPixel.Color;
+
+        // Выводим символ, который там был
+        Console.Write(oldPixel.Symbol);
+
+        // Возвращаем цвет по умолчанию
+        Console.ForegroundColor = ConsoleColor.White;
+    }
+
+
+    // Рисуем курсор
+    private void DrawCursor()
+    {
+        int drawX = cursorX + 1;
+        int drawY = cursorY + 1;
+
+        // Сохраняем позицию консоли (не обязательно)
+        int prevLeft = Console.CursorLeft;
+        int prevTop = Console.CursorTop;
+
+        Console.SetCursorPosition(drawX, drawY);
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("_");  // Символ курсора
+        Console.ForegroundColor = ConsoleColor.White;
+
+        // Возвращаемся в прежнее место (не обязательно)
+        Console.SetCursorPosition(prevLeft, prevTop);
+    }
+
+    private void DrawMenu()
+    {
+        // Меню располагается под холстом, значит начинаем с (0, canvasHeight+2)
+        Console.SetCursorPosition(0, canvasHeight + 2);
+        Console.WriteLine("Меню: [D] - Нарисовать фигуру, [Esc] - Выход. Стрелки: перемещение курсора");
     }
 }
