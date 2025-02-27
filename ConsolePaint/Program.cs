@@ -1,17 +1,15 @@
-﻿using ConsolePaint.Shapes;
+﻿using System;
+using ConsolePaint;
 
 namespace ConsolePaint
 {
     public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            // Создаем холст с размером 50x20
-            Canvas canvas = new Canvas(50, 20);
-
-            // Создаем меню и начинаем работу с ним
-            Menu menu = new Menu(canvas);
-            menu.ShowMenu();  // Показываем меню для взаимодействия с пользователем
+            // Задаём размеры холста: например, 50 столбцов и 20 строк (без учёта рамки)
+            Terminal terminal = new Terminal(50, 20);
+            terminal.Run();
         }
     }
 }
