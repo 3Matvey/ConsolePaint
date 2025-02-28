@@ -36,8 +36,7 @@ namespace ConsolePaint
                 InnerPixels[i].X += dx;
                 InnerPixels[i].Y += dy;
             }
-            // После смещения можно вызвать пересчёт, если логика фигуры зависит от внутренних параметров.
-           // CalculatePixels();
+            // CalculatePixels();
         }
 
         /// <summary>

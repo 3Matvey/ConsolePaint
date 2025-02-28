@@ -9,6 +9,7 @@ namespace ConsolePaint
         {
             // Задаём размеры холста: например, 50 столбцов и 20 строк (без учёта рамки)
             Terminal terminal = new Terminal(70, 20);
+
             terminal.Run();
         }
     }

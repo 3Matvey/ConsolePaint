@@ -9,7 +9,7 @@ namespace ConsolePaint
         private int width;
         private int height;
         private Pixel[,] pixels;
-        private List<Shape> shapes;  // Список фигур на холсте
+        private List<Shape> shapes;  // Список фигур, добавляемых через методы AddShape и т.д.
 
         public int Height => height;
 
@@ -24,8 +24,7 @@ namespace ConsolePaint
         }
 
         /// <summary>
-        /// Рисует рамку вокруг внутренней области холста.
-        /// Верхняя граница – строка 0, внутренняя область – строки 1..height, нижняя граница – строка (height+1).
+        /// Рисует ASCII-рамку вокруг внутренней области холста.
         /// </summary>
         public void DrawFrame()
         {
@@ -61,36 +60,29 @@ namespace ConsolePaint
         }
 
         /// <summary>
-        /// Отрисовывает один пиксель в пределах внутренней области холста.
-        /// Смещаем на (1,1), чтобы не затирать рамку.
+        /// Отрисовывает фигуру, выводя только её контур (внешние пиксели).
         /// </summary>
-        public void SetPixel(int x, int y, char symbol, ConsoleColor color)
+        public void Draw(Shape shape)
         {
-            if (x >= 0 && x < width && y >= 0 && y < height)
+            foreach (var p in shape.OuterPixels)
             {
-                // Создаём и сохраняем пиксель
-                pixels[x, y] = new Pixel(x, y, symbol, color);
-                Console.SetCursorPosition(x + 1, y + 1);
-                Console.ForegroundColor = color;
-                Console.Write(symbol);
-                Console.ForegroundColor = ConsoleColor.White;
+                SetPixel(p.X, p.Y, p.Symbol, p.Color);
             }
         }
 
         /// <summary>
-        /// Возвращает пиксель по координатам. Если пиксель не создан – возвращает "пустой" пиксель.
+        /// Заливает фигуру, отрисовывая её внутренние пиксели.
         /// </summary>
-        public Pixel GetPixel(int x, int y)
+        public void Fill(Shape shape)
         {
-            if (x >= 0 && x < width && y >= 0 && y < height)
+            foreach (var p in shape.InnerPixels)
             {
-                return pixels[x, y] ?? new Pixel(x, y, ' ', ConsoleColor.Black);
+                SetPixel(p.X, p.Y, p.Symbol, p.Color);
             }
-            return new Pixel(x, y, ' ', ConsoleColor.Black);
         }
 
         /// <summary>
-        /// Очищает внутреннюю область холста (не затрагивая рамку) и сбрасывает массив пикселей.
+        /// Очищает внутреннюю область холста (не затрагивая рамку).
         /// </summary>
         public void Clear()
         {
@@ -100,40 +92,13 @@ namespace ConsolePaint
                 {
                     pixels[x, y] = new Pixel(x, y, ' ', ConsoleColor.Black);
                     Console.SetCursorPosition(x + 1, y + 1);
-                    Console.Write(" ");
+                    Console.Write(' ');
                 }
             }
         }
 
         /// <summary>
-        /// Отрисовывает фигуру: пробегает по спискам OuterPixels и InnerPixels.
-        /// </summary>
-        public void Draw(Shape shape)
-        {
-            foreach (var p in shape.OuterPixels)
-            {
-                SetPixel(p.X, p.Y, p.Symbol, p.Color);
-            }
-            foreach (var p in shape.InnerPixels)
-            {
-                SetPixel(p.X, p.Y, p.Symbol, p.Color);
-            }
-        }
-
-        /// <summary>
-        /// Перерисовывает все фигуры из списка shapes.
-        /// </summary>
-        public void RedrawAllShapes()
-        {
-            Clear();
-            foreach (var s in shapes)
-            {
-                Draw(s);
-            }
-        }
-
-        /// <summary>
-        /// Добавляет фигуру в список и отрисовывает её.
+        /// Добавляет фигуру в список и сразу отрисовывает её контур.
         /// </summary>
         public void AddShape(Shape shape)
         {
@@ -151,17 +116,60 @@ namespace ConsolePaint
         }
 
         /// <summary>
-        /// Очищает список фигур и внутреннюю область холста.
+        /// Перерисовывает все фигуры (выводит контуры всех фигур).
         /// </summary>
-        public void ClearShapes()
+        public void RedrawAllShapes()
         {
-            shapes.Clear();
             Clear();
+            foreach (var shape in shapes)
+            {
+                Draw(shape);
+
+                if (shape.InnerPixels.Any( (p) => p.Symbol != ' '))
+                {
+                    foreach (var p in shape.InnerPixels)
+                    {
+                        SetPixel(p.X, p.Y, p.Symbol, p.Color);
+                    }
+                }
+            }
         }
 
         /// <summary>
-        /// Обёртки для создания фигур через статическую фабрику.
-        /// Создает линию, добавляет в список и отрисовывает.
+        /// Возвращает копию списка фигур.
+        /// </summary>
+        public List<Shape> GetShapes() => new List<Shape>(shapes);
+
+        /// <summary>
+        /// Устанавливает пиксель в указанной точке внутренней области холста.
+        /// Смещает координаты на (1,1), чтобы не затереть рамку.
+        /// </summary>
+        public void SetPixel(int x, int y, char symbol, ConsoleColor color)
+        {
+            if (x >= 0 && x < width && y >= 0 && y < height)
+            {
+                pixels[x, y] = new Pixel(x, y, symbol, color);
+                Console.SetCursorPosition(x + 1, y + 1);
+                Console.ForegroundColor = color;
+                Console.Write(symbol);
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+        }
+
+        /// <summary>
+        /// Возвращает пиксель по координатам. Если его нет, возвращает "пустой" пиксель.
+        /// </summary>
+        public Pixel GetPixel(int x, int y)
+        {
+            if (x >= 0 && x < width && y >= 0 && y < height)
+            {
+                return pixels[x, y] ?? new Pixel(x, y, ' ', ConsoleColor.Black);
+            }
+            return new Pixel(x, y, ' ', ConsoleColor.Black);
+        }
+
+        /// <summary>
+        /// Методы-обёртки для создания фигур через статическую фабрику.
         /// </summary>
         public void AddLine(int x1, int y1, int x2, int y2, char symbol = '*', ConsoleColor color = ConsoleColor.White)
         {
@@ -180,10 +188,5 @@ namespace ConsolePaint
             Shape s = ShapeFactory.CreateRectangle(x1, y1, x2, y2, symbol, color);
             AddShape(s);
         }
-
-        /// <summary>
-        /// Возвращает список всех фигур.
-        /// </summary>
-        public List<Shape> GetShapes() => new List<Shape>(shapes);
     }
 }

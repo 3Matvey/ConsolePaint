@@ -43,7 +43,7 @@
             {
                 for (int y = y1 + 1; y < y2; y++)
                 {
-                    InnerPixels.Add(new Pixel(x, y, symbol, color)); // Внутренние пиксели
+                    InnerPixels.Add(new Pixel(x, y, ' ', color)); // Внутренние пиксели
                 }
             }
         }

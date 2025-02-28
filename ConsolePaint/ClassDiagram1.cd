@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="ConsolePaint.Shapes.Point">
+  <Class Name="ConsolePaint.Shapes.Point" Collapsed="true">
     <Position X="1.5" Y="0.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAIAAAAAAAAAAAAAAACAAAAAAAAAACAAABgAAAAAAA=</HashCode>
@@ -24,12 +24,12 @@
   <Class Name="ConsolePaint.Shape">
     <Position X="3.75" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAACAAAAAAAAAAAAAAACBAAQAAAAAAAAAAAAAAACAAA=</HashCode>
+      <HashCode>AAACAAAAAIAAAAAAAAACBAAQAAAAAAAAAAAAAAACABA=</HashCode>
       <FileName>Shape.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
-      <Property Name="InnerPixels" />
       <Property Name="OuterPixels" />
+      <Property Name="InnerPixels" />
     </ShowAsCollectionAssociation>
   </Class>
   <Class Name="ConsolePaint.ShapeFactory">
@@ -40,7 +40,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="ConsolePaint.Pixel" Collapsed="true">
-    <Position X="7.25" Y="3" Width="1.5" />
+    <Position X="7.25" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAaAA=</HashCode>
       <FileName>Pixel.cs</FileName>
@@ -49,7 +49,7 @@
   <Class Name="ConsolePaint.Canvas">
     <Position X="9" Y="0.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAABAAAAAAAgUAQAAAAAAAAAAAAAAgAAAAAgBAAAA=</HashCode>
+      <HashCode>AAgBIhAABAAQAgUAQAAAAAAAAAAACAAgBAAAAABABEA=</HashCode>
       <FileName>Canvas.cs</FileName>
     </TypeIdentifier>
   </Class>

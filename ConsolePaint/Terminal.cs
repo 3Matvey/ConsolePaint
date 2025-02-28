@@ -39,7 +39,7 @@ namespace ConsolePaint
         {
             Console.Clear();
 
-            // Canvas сам рисует рамку и может хранить список фигур
+            // Рисуем рамку и фигуры (если есть)
             canvas.DrawFrame();
             canvas.RedrawAllShapes();
             DrawMenu();
@@ -61,7 +61,7 @@ namespace ConsolePaint
                         selectedShape = GetShapeAtCursor();
                         if (selectedShape != null)
                         {
-                            PrintMessage("Фигура выбрана. Стрелки перемещают её. Нажмите Enter для отмены выбора.");
+                            PrintMessage("Фигура выбрана. Стрелки перемещают её. [X] - Удалить. [F] - Заливка. Нажмите Enter для отмены выбора.");
                         }
                         else
                         {
@@ -94,6 +94,37 @@ namespace ConsolePaint
                     // Показываем меню добавления фигур
                     ShowAddShapeMenu();
                 }
+                else if (keyInfo.Key == ConsoleKey.F)
+                {
+                    // Заливка выбранной фигуры
+                    if (selectedShape != null)
+                    {
+                        PrintMessage("Введите символ заливки (Enter = +):");
+                        string fillSym = ReadLineAt(canvasHeight + 3);
+                        char fillSymbol = string.IsNullOrEmpty(fillSym) ? '+' : fillSym[0];
+
+                        PrintMessage("Введите цвет заливки (например, Blue, Enter = White):");
+                        string fillCol = ReadLineAt(canvasHeight + 3);
+                        ConsoleColor fillColor = Enum.TryParse(fillCol, true, out fillColor) ? fillColor : ConsoleColor.White;
+
+                        // Обновляем внутренние пиксели выбранной фигуры
+                        foreach (var p in selectedShape.InnerPixels)
+                        {
+                            p.Symbol = fillSymbol;
+                            p.Color = fillColor;
+                        }
+
+                        // Вызываем метод заливки, который отрисовывает внутренние пиксели
+                        canvas.Fill(selectedShape);
+                        PrintMessage("Заливка применена. Нажмите Enter.");
+                        ReadLineAt(canvasHeight + 3);
+                    }
+                    else
+                    {
+                        PrintMessage("Нет выбранной фигуры для заливки.");
+                        ReadLineAt(canvasHeight + 3);
+                    }
+                }
                 else if (IsArrowKey(keyInfo.Key))
                 {
                     int dx = 0, dy = 0;
@@ -105,7 +136,6 @@ namespace ConsolePaint
                     if (selectedShape != null)
                     {
                         // Перемещаем выбранную фигуру
-                        // (Стираем старые пиксели, фигура сама пересчитает и перерисует себя при RedrawAllShapes)
                         EraseShape(selectedShape);
                         selectedShape.Move(dx, dy);
                         canvas.RedrawAllShapes();
@@ -118,6 +148,7 @@ namespace ConsolePaint
                 }
             }
         }
+
 
         /// <summary>
         /// Меню для добавления новой фигуры: линия, точка, прямоугольник.
@@ -276,7 +307,7 @@ namespace ConsolePaint
             int row = canvasHeight + 2;
             ClearLine(row);
             Console.SetCursorPosition(0, row);
-            Console.WriteLine("Меню: [D] - добавить фигуру, [Enter] - выбрать/снять выбор, [X] - удалить, [Esc] - выход");
+            Console.WriteLine("Меню: [D] - добавить фигуру, [Enter] - выбрать/снять выбор, [Esc] - выход");
         }
 
         /// <summary>
@@ -311,7 +342,7 @@ namespace ConsolePaint
         /// <summary>
         /// Проверяет, является ли key – стрелкой.
         /// </summary>
-        private bool IsArrowKey(ConsoleKey key)
+        private static bool IsArrowKey(ConsoleKey key)
         {
             return (key == ConsoleKey.UpArrow ||
                     key == ConsoleKey.DownArrow ||
@@ -345,7 +376,7 @@ namespace ConsolePaint
         /// <summary>
         /// Очищает строку, записывая пробелы.
         /// </summary>
-        private void ClearLine(int row)
+        private static void ClearLine(int row)
         {
             Console.SetCursorPosition(0, row);
             Console.Write(new string(' ', 120));
@@ -383,7 +414,7 @@ namespace ConsolePaint
         /// <summary>
         /// Сбрасывает буфер консоли (удаляя лишние нажатия).
         /// </summary>
-        private void FlushInput()
+        private static void FlushInput()
         {
             while (Console.KeyAvailable)
             {
