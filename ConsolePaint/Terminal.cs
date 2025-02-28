@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-// Предположим, что ConsolePaint.Shapes содержит ваши классы фигур и ShapeFactory
+using ConsolePaint;
 using ConsolePaint.Shapes;
 
 namespace ConsolePaint
@@ -8,17 +8,19 @@ namespace ConsolePaint
     public class Terminal
     {
         private Canvas canvas;
-        private List<Shape> shapes;  // Храним все созданные фигуры
 
-        // Размер холста
+        // Размер внутренней области холста
         private int canvasWidth;
         private int canvasHeight;
 
-        // Положение курсора на холсте
+        // Положение курсора (0..canvasWidth-1, 0..canvasHeight-1)
         private int cursorX;
         private int cursorY;
 
-        // Сколько строк снизу резервируем под меню
+        // Если фигура выбрана, стрелки перемещают её
+        private Shape selectedShape = null;
+
+        // Сколько строк внизу зарезервируем под меню/ввод
         private const int MENU_LINES = 8;
 
         public Terminal(int canvasWidth, int canvasHeight)
@@ -26,226 +28,244 @@ namespace ConsolePaint
             this.canvasWidth = canvasWidth;
             this.canvasHeight = canvasHeight;
 
+            // Инициализируем Canvas, где хранятся и рисуются фигуры
             canvas = new Canvas(canvasWidth, canvasHeight);
-            shapes = new List<Shape>();
 
-            // Начальные координаты курсора (0,0)
             cursorX = 0;
             cursorY = 0;
         }
 
-        /// <summary>
-        /// Запуск основного цикла работы терминала.
-        /// </summary>
         public void Run()
         {
             Console.Clear();
 
-            // Рисуем рамку холста
+            // Canvas сам рисует рамку и может хранить список фигур
             canvas.DrawFrame();
-            // Рисуем уже имеющиеся фигуры (если надо)
-            RedrawAllShapes();
-
-            // Рисуем меню и курсор
+            canvas.RedrawAllShapes();
             DrawMenu();
             DrawCursor();
 
-            // Основной цикл
             while (true)
             {
-                // Считываем нажатие клавиши
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 
-                // Если это стрелка — двигаем курсор
-                if (keyInfo.Key == ConsoleKey.UpArrow)
+                if (keyInfo.Key == ConsoleKey.Escape)
                 {
-                    MoveCursor(0, -1);
-                }
-                else if (keyInfo.Key == ConsoleKey.DownArrow)
-                {
-                    MoveCursor(0, 1);
-                }
-                else if (keyInfo.Key == ConsoleKey.LeftArrow)
-                {
-                    MoveCursor(-1, 0);
-                }
-                else if (keyInfo.Key == ConsoleKey.RightArrow)
-                {
-                    MoveCursor(1, 0);
-                }
-                else if (keyInfo.Key == ConsoleKey.Escape)
-                {
-                    // Выходим из приложения
                     return;
                 }
-                else
+                else if (keyInfo.Key == ConsoleKey.Enter)
                 {
-                    // Проверим, не нажал ли пользователь цифру (1,2,3,...)
-                    char c = keyInfo.KeyChar;
-                    if (char.IsDigit(c))
+                    // Выбор/снятие выбора фигуры
+                    if (selectedShape == null)
                     {
-                        HandleCommand(c.ToString());
+                        selectedShape = GetShapeAtCursor();
+                        if (selectedShape != null)
+                        {
+                            PrintMessage("Фигура выбрана. Стрелки перемещают её. Нажмите Enter для отмены выбора.");
+                        }
+                        else
+                        {
+                            PrintMessage("Фигура не найдена под курсором.");
+                        }
+                    }
+                    else
+                    {
+                        selectedShape = null;
+                        PrintMessage("Выбор снят. Стрелки перемещают курсор.");
+                    }
+                }
+                else if (keyInfo.Key == ConsoleKey.X)
+                {
+                    // Удаляем выбранную фигуру
+                    if (selectedShape != null)
+                    {
+                        canvas.RemoveShape(selectedShape);
+                        selectedShape = null;
+                        PrintMessage("Выбранная фигура удалена.");
+                        canvas.RedrawAllShapes();
+                    }
+                    else
+                    {
+                        PrintMessage("Нет выбранной фигуры для удаления.");
+                    }
+                }
+                else if (keyInfo.Key == ConsoleKey.D)
+                {
+                    // Показываем меню добавления фигур
+                    ShowAddShapeMenu();
+                }
+                else if (IsArrowKey(keyInfo.Key))
+                {
+                    int dx = 0, dy = 0;
+                    if (keyInfo.Key == ConsoleKey.UpArrow) dy = -1;
+                    if (keyInfo.Key == ConsoleKey.DownArrow) dy = 1;
+                    if (keyInfo.Key == ConsoleKey.LeftArrow) dx = -1;
+                    if (keyInfo.Key == ConsoleKey.RightArrow) dx = 1;
+
+                    if (selectedShape != null)
+                    {
+                        // Перемещаем выбранную фигуру
+                        // (Стираем старые пиксели, фигура сама пересчитает и перерисует себя при RedrawAllShapes)
+                        EraseShape(selectedShape);
+                        selectedShape.Move(dx, dy);
+                        canvas.RedrawAllShapes();
+                    }
+                    else
+                    {
+                        // Перемещаем курсор
+                        MoveCursor(dx, dy);
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Обрабатывает команду (строка), введённую пользователем (например, "1","2","3").
+        /// Меню для добавления новой фигуры: линия, точка, прямоугольник.
         /// </summary>
-        private void HandleCommand(string cmd)
+        private void ShowAddShapeMenu()
         {
-            // Стираем курсор, чтобы не мешал выводу меню
-            EraseCursor();
+            // Снимаем выбор, чтобы стрелки не двигали выбранную фигуру
+            selectedShape = null;
 
-            switch (cmd)
+            ClearMenuArea();
+            PrintMessage("Добавить фигуру: [1] Линия, [2] Точка, [3] Прямоугольник");
+            string choice = ReadLineAt(canvasHeight + 3);
+
+            switch (choice)
             {
                 case "1":
-                    // Нарисовать фигуру
-                    CreateFigureFlow();
+                    if (PromptLineInput(out int x1, out int y1, out int x2, out int y2,
+                                        out char lineSym, out ConsoleColor lineColor))
+                    {
+                        // Вызываем методы Canvas для добавления
+                        canvas.AddLine(x1, y1, x2, y2, lineSym, lineColor);
+                    }
                     break;
                 case "2":
-                    // Очистить холст
-                    canvas.Clear();
-                    shapes.Clear();
-                    PrintMessage("Холст и список фигур очищены. Нажмите Enter.");
-                    ReadLineAt(canvasHeight + 4);
+                    if (PromptPointInput(out int px, out int py, out char pSym, out ConsoleColor pColor))
+                    {
+                        canvas.AddPoint(px, py, pSym, pColor);
+                    }
                     break;
                 case "3":
-                    // Выход
-                    PrintMessage("Выход из приложения...");
-                    ReadLineAt(canvasHeight + 4);
-                    Environment.Exit(0);
+                    if (PromptRectangleInput(out int rx1, out int ry1, out int rx2, out int ry2,
+                                             out char rSym, out ConsoleColor rColor))
+                    {
+                        canvas.AddRectangle(rx1, ry1, rx2, ry2, rSym, rColor);
+                    }
                     break;
                 default:
-                    PrintMessage("Некорректная команда. Нажмите Enter.");
-                    ReadLineAt(canvasHeight + 4);
+                    PrintMessage("Неверный выбор. Нажмите Enter.");
+                    ReadLineAt(canvasHeight + 3);
                     break;
             }
 
-            // Перерисовываем холст и меню
-            RedrawAllShapes();
+            // Перерисовываем
+            canvas.RedrawAllShapes();
             DrawMenu();
             DrawCursor();
         }
 
         /// <summary>
-        /// Логика создания фигуры: спрашиваем тип (линия, точка, прямоугольник), 
-        /// а потом координаты, символ и цвет.
+        /// Запрашивает у пользователя параметры для линии (x1,y1,x2,y2, символ, цвет).
+        /// Возвращает true, если ввод корректен.
         /// </summary>
-        private void CreateFigureFlow()
+        private bool PromptLineInput(out int x1, out int y1, out int x2, out int y2,
+                                     out char symbol, out ConsoleColor color)
         {
-            PrintMessage("Выберите тип фигуры: [1] Линия, [2] Точка, [3] Прямоугольник");
-            string choice = ReadLineAt(canvasHeight + 4);
+            x1 = y1 = x2 = y2 = 0;
+            symbol = '*';
+            color = ConsoleColor.White;
 
-            Shape shape = null;
-            switch (choice)
-            {
-                case "1":
-                    shape = CreateLine();
-                    break;
-                case "2":
-                    shape = CreatePoint();
-                    break;
-                case "3":
-                    shape = CreateRectangle();
-                    break;
-                default:
-                    PrintMessage("Неверный выбор типа. Нажмите Enter.");
-                    ReadLineAt(canvasHeight + 4);
-                    return;
-            }
-
-            if (shape != null)
-            {
-                shapes.Add(shape);
-                canvas.Draw(shape);
-                PrintMessage("Фигура создана! Нажмите Enter.");
-                ReadLineAt(canvasHeight + 4);
-            }
-        }
-
-        private Shape CreateLine()
-        {
             PrintMessage("Введите X1:");
-            if (!TryReadInt(out int x1)) return null;
+            if (!TryReadInt(out x1)) return false;
 
             PrintMessage("Введите Y1:");
-            if (!TryReadInt(out int y1)) return null;
+            if (!TryReadInt(out y1)) return false;
 
             PrintMessage("Введите X2:");
-            if (!TryReadInt(out int x2)) return null;
+            if (!TryReadInt(out x2)) return false;
 
             PrintMessage("Введите Y2:");
-            if (!TryReadInt(out int y2)) return null;
+            if (!TryReadInt(out y2)) return false;
 
-            PrintMessage("Символ линии (Enter=*)");
-            string sym = ReadLineAt(canvasHeight + 4);
-            char symbol = string.IsNullOrEmpty(sym) ? '*' : sym[0];
-
-            PrintMessage("Цвет линии (Enter=White)");
-            string col = ReadLineAt(canvasHeight + 4);
-            ConsoleColor color = Enum.TryParse(col, true, out color) ? color : ConsoleColor.White;
-
-            return ShapeFactory.CreateLine(x1, y1, x2, y2, symbol, color);
-        }
-
-        private Shape CreatePoint()
-        {
-            PrintMessage("Введите X:");
-            if (!TryReadInt(out int x)) return null;
-
-            PrintMessage("Введите Y:");
-            if (!TryReadInt(out int y)) return null;
-
-            PrintMessage("Символ точки (Enter=*)");
-            string sym = ReadLineAt(canvasHeight + 4);
-            char symbol = string.IsNullOrEmpty(sym) ? '*' : sym[0];
+            PrintMessage("Символ для линии (Enter=*)");
+            string symInput = ReadLineAt(canvasHeight + 4);
+            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
 
             PrintMessage("Цвет (Enter=White)");
-            string col = ReadLineAt(canvasHeight + 4);
-            ConsoleColor color = Enum.TryParse(col, true, out color) ? color : ConsoleColor.White;
-
-            return ShapeFactory.CreatePoint(x, y, symbol, color);
-        }
-
-        private Shape CreateRectangle()
-        {
-            PrintMessage("Введите X1 (левый верх):");
-            if (!TryReadInt(out int x1)) return null;
-
-            PrintMessage("Введите Y1 (левый верх):");
-            if (!TryReadInt(out int y1)) return null;
-
-            PrintMessage("Введите X2 (правый низ):");
-            if (!TryReadInt(out int x2)) return null;
-
-            PrintMessage("Введите Y2 (правый низ):");
-            if (!TryReadInt(out int y2)) return null;
-
-            PrintMessage("Символ (Enter=#)");
-            string sym = ReadLineAt(canvasHeight + 4);
-            char symbol = string.IsNullOrEmpty(sym) ? '#' : sym[0];
-
-            PrintMessage("Цвет (Enter=White)");
-            string col = ReadLineAt(canvasHeight + 4);
-            ConsoleColor color = Enum.TryParse(col, true, out color) ? color : ConsoleColor.White;
-
-            return ShapeFactory.CreateRectangle(x1, y1, x2, y2, symbol, color);
+            string colInput = ReadLineAt(canvasHeight + 4);
+            if (!string.IsNullOrEmpty(colInput))
+            {
+                if (!Enum.TryParse(colInput, true, out color))
+                    color = ConsoleColor.White;
+            }
+            return true;
         }
 
         /// <summary>
-        /// Перерисовывает все фигуры, чтобы отобразить текущее состояние.
+        /// Запрашивает координаты (x, y), символ и цвет для точки.
         /// </summary>
-        private void RedrawAllShapes()
+        private bool PromptPointInput(out int x, out int y, out char symbol, out ConsoleColor color)
         {
-            // Очистим внутреннюю часть (не рамку)
-            canvas.Clear();
-            // Снова нарисуем все фигуры
-            foreach (var s in shapes)
+            x = y = 0;
+            symbol = '*';
+            color = ConsoleColor.White;
+
+            PrintMessage("Введите X:");
+            if (!TryReadInt(out x)) return false;
+
+            PrintMessage("Введите Y:");
+            if (!TryReadInt(out y)) return false;
+
+            PrintMessage("Символ точки (Enter=*)");
+            string symInput = ReadLineAt(canvasHeight + 4);
+            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
+
+            PrintMessage("Цвет (Enter=White)");
+            string colInput = ReadLineAt(canvasHeight + 4);
+            if (!string.IsNullOrEmpty(colInput))
             {
-                canvas.Draw(s);
+                if (!Enum.TryParse(colInput, true, out color))
+                    color = ConsoleColor.White;
             }
+            return true;
+        }
+
+        /// <summary>
+        /// Запрашивает координаты (x1,y1,x2,y2), символ и цвет для прямоугольника.
+        /// </summary>
+        private bool PromptRectangleInput(out int x1, out int y1, out int x2, out int y2,
+                                          out char symbol, out ConsoleColor color)
+        {
+            x1 = y1 = x2 = y2 = 0;
+            symbol = '#';
+            color = ConsoleColor.White;
+
+            PrintMessage("Введите X1 (левый верх):");
+            if (!TryReadInt(out x1)) return false;
+
+            PrintMessage("Введите Y1 (левый верх):");
+            if (!TryReadInt(out y1)) return false;
+
+            PrintMessage("Введите X2 (правый низ):");
+            if (!TryReadInt(out x2)) return false;
+
+            PrintMessage("Введите Y2 (правый низ):");
+            if (!TryReadInt(out y2)) return false;
+
+            PrintMessage("Символ прямоугольника (Enter=#)");
+            string symInput = ReadLineAt(canvasHeight + 4);
+            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
+
+            PrintMessage("Цвет (Enter=White)");
+            string colInput = ReadLineAt(canvasHeight + 4);
+            if (!string.IsNullOrEmpty(colInput))
+            {
+                if (!Enum.TryParse(colInput, true, out color))
+                    color = ConsoleColor.White;
+            }
+            return true;
         }
 
         /// <summary>
@@ -253,18 +273,65 @@ namespace ConsolePaint
         /// </summary>
         private void DrawMenu()
         {
-            ClearMenuArea();
             int row = canvasHeight + 2;
+            ClearLine(row);
             Console.SetCursorPosition(0, row);
-            Console.WriteLine("[1] Нарисовать фигуру, [2] Очистить холст, [3] Выход");
-            Console.SetCursorPosition(0, row + 1);
-            Console.WriteLine("Стрелки - перемещение курсора, ESC - выход.");
-            Console.SetCursorPosition(0, row + 2);
-            Console.WriteLine("Нажмите цифру команды (1,2,3)...");
+            Console.WriteLine("Меню: [D] - добавить фигуру, [Enter] - выбрать/снять выбор, [X] - удалить, [Esc] - выход");
         }
 
         /// <summary>
-        /// Очищает несколько строк под холстом (MENU_LINES).
+        /// Стирает пиксели выбранной фигуры (заменяет их пробелами).
+        /// </summary>
+        private void EraseShape(Shape shape)
+        {
+            foreach (var p in shape.OuterPixels)
+            {
+                canvas.SetPixel(p.X, p.Y, ' ', ConsoleColor.Black);
+            }
+            foreach (var p in shape.InnerPixels)
+            {
+                canvas.SetPixel(p.X, p.Y, ' ', ConsoleColor.Black);
+            }
+        }
+
+        /// <summary>
+        /// Находит фигуру под курсором.
+        /// </summary>
+        private Shape GetShapeAtCursor()
+        {
+            var allShapes = canvas.GetShapes();
+            foreach (var s in allShapes)
+            {
+                if (s.ContainsPoint(cursorX, cursorY))
+                    return s;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Проверяет, является ли key – стрелкой.
+        /// </summary>
+        private bool IsArrowKey(ConsoleKey key)
+        {
+            return (key == ConsoleKey.UpArrow ||
+                    key == ConsoleKey.DownArrow ||
+                    key == ConsoleKey.LeftArrow ||
+                    key == ConsoleKey.RightArrow);
+        }
+
+        /// <summary>
+        /// Выводит сообщение на строке (canvasHeight + 4), очищая её.
+        /// </summary>
+        private void PrintMessage(string msg)
+        {
+            int row = canvasHeight + 4;
+            ClearLine(row);
+            Console.SetCursorPosition(0, row);
+            Console.WriteLine(msg);
+        }
+
+        /// <summary>
+        /// Очищает N строк под холстом, если нужно (в данном случае используем ClearLine выборочно).
         /// </summary>
         private void ClearMenuArea()
         {
@@ -286,52 +353,35 @@ namespace ConsolePaint
         }
 
         /// <summary>
-        /// Выводит сообщение на строке (canvasHeight + 4).
-        /// </summary>
-        private void PrintMessage(string msg)
-        {
-            int row = canvasHeight + 4;
-            ClearLine(row);
-            Console.SetCursorPosition(0, row);
-            Console.WriteLine(msg);
-        }
-
-        /// <summary>
-        /// Считывает одно целое число (сброс буфера ввода + ReadLine).
-        /// Если ошибка - выводим сообщение и возвращаем false.
+        /// Считывает одно целое число. Возвращает false, если ввод некорректен.
         /// </summary>
         private bool TryReadInt(out int result)
         {
             FlushInput();
-            int row = canvasHeight + 5; // Чуть ниже строки с сообщением
+            int row = canvasHeight + 5;
             string input = ReadLineAt(row);
             if (!int.TryParse(input, out result))
             {
-                PrintMessage("Ошибка ввода координат (не целое число)!");
-                // Дадим пользователю нажать Enter
-                ReadLineAt(row);
+                PrintMessage("Ошибка ввода (не целое число)!");
+                ReadLineAt(row);  // Ждём Enter
                 return false;
             }
             return true;
         }
 
         /// <summary>
-        /// Считывает строку на указанной строке. 
-        /// После чтения сразу очищаем её, чтобы не оставался старый ввод.
+        /// Считывает строку на указанной строке (row) и очищает её после ввода.
         /// </summary>
         private string ReadLineAt(int row)
         {
-            // Переходим в начало строки
             Console.SetCursorPosition(0, row);
-            // Считываем
             string input = Console.ReadLine();
-            // Очищаем строку
             ClearLine(row);
             return input;
         }
 
         /// <summary>
-        /// Сбрасывает буфер ввода от лишних нажатых клавиш
+        /// Сбрасывает буфер консоли (удаляя лишние нажатия).
         /// </summary>
         private void FlushInput()
         {
@@ -340,14 +390,43 @@ namespace ConsolePaint
                 Console.ReadKey(true);
             }
         }
+        /// <summary>
+        /// Рисует курсор в виде подчёркивания ('_') жёлтым цветом.
+        /// </summary>
+        private void DrawCursor()
+        {
+            // Поскольку рамка занимает 1 строку/столбец сверху и слева,
+            // реальные координаты курсора в консоли = (cursorX + 1, cursorY + 1).
+            int drawX = cursorX + 1;
+            int drawY = cursorY + 1;
 
-        // ---------- Работа с курсором ----------
+            // Сохраняем текущую позицию курсора (не обязательно).
+            int prevLeft = Console.CursorLeft;
+            int prevTop = Console.CursorTop;
 
+            Console.SetCursorPosition(drawX, drawY);
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("_");  // Символ курсора
+            Console.ForegroundColor = ConsoleColor.White;
+
+            // Возвращаем курсор консоли на прежнее место (не обязательно).
+            Console.SetCursorPosition(prevLeft, prevTop);
+        }
+
+        /// <summary>
+        /// Перемещает курсор на dx, dy, стирая старое его положение и рисуя новое.
+        /// </summary>
         private void MoveCursor(int dx, int dy)
         {
+            // Сначала стираем старое положение курсора,
+            // восстанавливая символ пикселя из холста (Canvas).
             EraseCursor();
+
+            // Обновляем координаты, ограничивая их пределами холста.
             cursorX = Math.Max(0, Math.Min(cursorX + dx, canvasWidth - 1));
             cursorY = Math.Max(0, Math.Min(cursorY + dy, canvasHeight - 1));
+
+            // Рисуем курсор в новой позиции.
             DrawCursor();
         }
 
@@ -361,21 +440,5 @@ namespace ConsolePaint
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        private void DrawCursor()
-        {
-            int drawX = cursorX + 1;
-            int drawY = cursorY + 1;
-            // Сохраняем позицию (не обязательно)
-            int prevLeft = Console.CursorLeft;
-            int prevTop = Console.CursorTop;
-
-            Console.SetCursorPosition(drawX, drawY);
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("_");
-            Console.ForegroundColor = ConsoleColor.White;
-
-            // Возвращаемся назад
-            Console.SetCursorPosition(prevLeft, prevTop);
-        }
     }
 }

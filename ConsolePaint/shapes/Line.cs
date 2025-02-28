@@ -19,7 +19,7 @@
         }
 
         // Метод для вычисления пикселей линии
-        public override void CalculatePixels()
+        protected override void CalculatePixels()
         {
             // Очищаем старые пиксели
             OuterPixels.Clear();

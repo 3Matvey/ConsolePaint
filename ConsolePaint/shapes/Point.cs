@@ -17,7 +17,7 @@
         }
 
         // Метод для вычисления пикселей точки
-        public override void CalculatePixels()
+        protected override void CalculatePixels()
         {
             // Очищаем старые пиксели
             OuterPixels.Clear();
