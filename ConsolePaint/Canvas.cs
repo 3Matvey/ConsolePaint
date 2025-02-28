@@ -5,6 +5,7 @@ public class Canvas
     private int width;
     private int height;
     private Pixel[,] pixels;
+    public int Height => height;
 
     public Canvas(int width, int height)
     {
