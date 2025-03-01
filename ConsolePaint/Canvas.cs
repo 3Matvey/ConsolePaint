@@ -125,7 +125,7 @@ namespace ConsolePaint
             {
                 Draw(shape);
 
-                if (shape.InnerPixels.Any( (p) => p.Symbol != ' '))
+                if (shape.InnerPixels.Any(p => p.Symbol != ' '))
                 {
                     foreach (var p in shape.InnerPixels)
                     {
@@ -171,22 +171,22 @@ namespace ConsolePaint
         /// <summary>
         /// Методы-обёртки для создания фигур через статическую фабрику.
         /// </summary>
-        public void AddLine(int x1, int y1, int x2, int y2, char symbol = '*', ConsoleColor color = ConsoleColor.White)
-        {
-            Shape s = ShapeFactory.CreateLine(x1, y1, x2, y2, symbol, color);
-            AddShape(s);
-        }
+        //public void AddLine(int x1, int y1, int x2, int y2, char symbol = '*', ConsoleColor color = ConsoleColor.White)
+        //{
+        //    Shape s = ShapeFactory.CreateLine(x1, y1, x2, y2, symbol, color);
+        //    AddShape(s);
+        //}
 
-        public void AddPoint(int x, int y, char symbol = '*', ConsoleColor color = ConsoleColor.White)
-        {
-            Shape s = ShapeFactory.CreatePoint(x, y, symbol, color);
-            AddShape(s);
-        }
+        //public void AddPoint(int x, int y, char symbol = '*', ConsoleColor color = ConsoleColor.White)
+        //{
+        //    Shape s = ShapeFactory.CreatePoint(x, y, symbol, color);
+        //    AddShape(s);
+        //}
 
-        public void AddRectangle(int x1, int y1, int x2, int y2, char symbol = '#', ConsoleColor color = ConsoleColor.White)
-        {
-            Shape s = ShapeFactory.CreateRectangle(x1, y1, x2, y2, symbol, color);
-            AddShape(s);
-        }
+        //public void AddRectangle(int x1, int y1, int x2, int y2, char symbol = '#', ConsoleColor color = ConsoleColor.White)
+        //{
+        //    Shape s = ShapeFactory.CreateRectangle(x1, y1, x2, y2, symbol, color);
+        //    AddShape(s);
+        //}
     }
 }

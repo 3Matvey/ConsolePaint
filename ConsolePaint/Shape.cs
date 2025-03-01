@@ -10,14 +10,19 @@ namespace ConsolePaint
         public List<Pixel> OuterPixels { get; private set; }
         public List<Pixel> InnerPixels { get; private set; }
 
-        public Shape()
+        private protected char symbol;
+        private protected ConsoleColor color;
+
+        public Shape(char symbol, ConsoleColor color)
         {
             Id = idCounter++;
-            OuterPixels = [];  // Инициализация списка
-            InnerPixels = [];  // Инициализация списка
+            OuterPixels = [];  
+            InnerPixels = [];  
+            this.symbol = symbol;
+            this.color = color;
         }
 
-        // Метод для вычисления пикселей фигуры (сделаем его публичным)
+        // Метод для вычисления пикселей фигуры 
         protected abstract void CalculatePixels();
 
         /// <summary>

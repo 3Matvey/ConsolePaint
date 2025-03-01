@@ -3,11 +3,9 @@
     public class Rectangle : Shape
     {
         private int x1, y1, x2, y2;
-        private char symbol;
-        private ConsoleColor color;
 
         public Rectangle(int x1, int y1, int x2, int y2, char symbol, ConsoleColor color)
-            : base()
+            : base(symbol, color)
         {
             this.x1 = x1;
             this.y1 = y1;

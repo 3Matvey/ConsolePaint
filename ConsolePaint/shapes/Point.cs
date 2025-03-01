@@ -3,11 +3,9 @@
     public class Point : Shape
     {
         private int x, y;
-        private char symbol;
-        private ConsoleColor color;
 
         public Point(int x, int y, char symbol, ConsoleColor color)
-            : base()
+            : base(symbol, color)
         {
             this.x = x;
             this.y = y;

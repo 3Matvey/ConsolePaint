@@ -1,2 +1,1 @@
-ConsolePaint/obj/
-ConsolePaint/bin/
+**/bin/ **/obj/

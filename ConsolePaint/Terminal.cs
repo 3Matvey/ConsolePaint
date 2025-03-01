@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using ConsolePaint;
 using ConsolePaint.Shapes;
 
@@ -100,11 +101,11 @@ namespace ConsolePaint
                     if (selectedShape != null)
                     {
                         PrintMessage("Введите символ заливки (Enter = +):");
-                        string fillSym = ReadLineAt(canvasHeight + 3);
+                        string fillSym = ReadLineAt(canvasHeight + 5);
                         char fillSymbol = string.IsNullOrEmpty(fillSym) ? '+' : fillSym[0];
 
                         PrintMessage("Введите цвет заливки (например, Blue, Enter = White):");
-                        string fillCol = ReadLineAt(canvasHeight + 3);
+                        string fillCol = ReadLineAt(canvasHeight + 5);
                         ConsoleColor fillColor = Enum.TryParse(fillCol, true, out fillColor) ? fillColor : ConsoleColor.White;
 
                         // Обновляем внутренние пиксели выбранной фигуры
@@ -159,30 +160,50 @@ namespace ConsolePaint
             selectedShape = null;
 
             ClearMenuArea();
-            PrintMessage("Добавить фигуру: [1] Линия, [2] Точка, [3] Прямоугольник");
+            PrintMessage("Добавить фигуру: [1] Линия, [2] Точка, [3] Прямоугольник, [4] Эллипс, [5] Треугольник");
             string choice = ReadLineAt(canvasHeight + 3);
 
             switch (choice)
             {
                 case "1":
-                    if (PromptLineInput(out int x1, out int y1, out int x2, out int y2,
-                                        out char lineSym, out ConsoleColor lineColor))
+                    if (PromptLineInput(out int x1, out int y1, out int x2, out int y2, out char lineSym, out ConsoleColor lineColor))
                     {
-                        // Вызываем методы Canvas для добавления
-                        canvas.AddLine(x1, y1, x2, y2, lineSym, lineColor);
+                        // Добавление линии
+                        Shape s = ShapeFactory.CreateLine(x1, y1, x2, y2, lineSym, lineColor);
+                        canvas.AddShape(s);
                     }
                     break;
                 case "2":
                     if (PromptPointInput(out int px, out int py, out char pSym, out ConsoleColor pColor))
                     {
-                        canvas.AddPoint(px, py, pSym, pColor);
+                        // Добавление точки
+                        Shape s = ShapeFactory.CreatePoint(px, py, pSym, pColor);
+                        canvas.AddShape(s);
                     }
                     break;
                 case "3":
-                    if (PromptRectangleInput(out int rx1, out int ry1, out int rx2, out int ry2,
-                                             out char rSym, out ConsoleColor rColor))
+                    if (PromptRectangleInput(out int rx1, out int ry1, out int rx2, out int ry2, out char rSym, out ConsoleColor rColor))
                     {
-                        canvas.AddRectangle(rx1, ry1, rx2, ry2, rSym, rColor);
+                        // Добавление прямоугольника
+                        Shape s = ShapeFactory.CreateRectangle(rx1, ry1, rx2, ry2, rSym, rColor);
+                        canvas.AddShape(s);
+                    }
+                    break;
+                case "4":
+                    if (PromptEllipseInput(out int ex, out int ey, out int exRadius, out int eyRadius, out char eSym, out ConsoleColor eColor))
+                    {
+                        // Добавление эллипса
+                        Shape s = ShapeFactory.CreateEllipse(ex, ey, exRadius, eyRadius, eSym, eColor);
+                        canvas.AddShape(s);
+                    }
+                    break;
+                case "5":
+                    if (PromptTriangleInput(out int tx1, out int ty1, out int tx2, out int ty2, out int tx3, out int ty3, out char tSym, out ConsoleColor tColor))
+                    {
+                        Shape s = ShapeFactory.CreateTriangle(tx1, ty1, tx2, ty2, tx3, ty3, tSym, tColor);
+                        canvas.AddShape(s);
+                        // Добавление треугольника
+                        //canvas.AddTriangle(tx1, ty1, tx2, ty2, tx3, ty3, tSym, tColor);
                     }
                     break;
                 default:
@@ -195,6 +216,70 @@ namespace ConsolePaint
             canvas.RedrawAllShapes();
             DrawMenu();
             DrawCursor();
+        }
+
+        private bool PromptEllipseInput(out int x, out int y, out int radiusX, out int radiusY, out char symbol, out ConsoleColor color)
+        {
+            x = y = radiusX = radiusY = 0;
+            symbol = '*';
+            color = ConsoleColor.White;
+
+            PrintMessage("Введите координаты центра (X):");
+            if (!TryReadInt(out x)) return false;
+
+            PrintMessage("Введите координаты центра (Y):");
+            if (!TryReadInt(out y)) return false;
+
+            PrintMessage("Введите радиус по X:");
+            if (!TryReadInt(out radiusX)) return false;
+
+            PrintMessage("Введите радиус по Y:");
+            if (!TryReadInt(out radiusY)) return false;
+
+            PrintMessage("Символ для эллипса (Enter=*)");
+            string symInput = ReadLineAt(canvasHeight + 4);
+            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
+
+            PrintMessage("Цвет (Enter=White)");
+            string colInput = ReadLineAt(canvasHeight + 4);
+            if (!string.IsNullOrEmpty(colInput))
+            {
+                if (!Enum.TryParse(colInput, true, out color))
+                    color = ConsoleColor.White;
+            }
+            return true;
+        }
+
+        private bool PromptTriangleInput(out int x1, out int y1, out int x2, out int y2, out int x3, out int y3, out char symbol, out ConsoleColor color)
+        {
+            x1 = y1 = x2 = y2 = x3 = y3 = 0;
+            symbol = '*';
+            color = ConsoleColor.White;
+
+            PrintMessage("Введите координаты первой вершины (X1 Y1):");
+            if (!TryReadInt(out x1)) return false;
+            if (!TryReadInt(out y1)) return false;
+
+            PrintMessage("Введите координаты второй вершины (X2 Y2):");
+            if (!TryReadInt(out x2)) return false;
+            if (!TryReadInt(out y2)) return false;
+
+            PrintMessage("Введите координаты третьей вершины (X3 Y3):");
+            if (!TryReadInt(out x3)) return false;
+            if (!TryReadInt(out y3)) return false;
+
+            PrintMessage("Символ для треугольника (Enter=*)");
+            string symInput = ReadLineAt(canvasHeight + 4);
+            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
+
+            PrintMessage("Цвет (Enter=White)");
+            string colInput = ReadLineAt(canvasHeight + 4);
+            if (!string.IsNullOrEmpty(colInput))
+            {
+                if (!Enum.TryParse(colInput, true, out color))
+                    color = ConsoleColor.White;
+            }
+            return true;
         }
 
         /// <summary>
@@ -221,11 +306,11 @@ namespace ConsolePaint
             if (!TryReadInt(out y2)) return false;
 
             PrintMessage("Символ для линии (Enter=*)");
-            string symInput = ReadLineAt(canvasHeight + 4);
+            string symInput = ReadLineAt(canvasHeight + 5);
             if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
 
             PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 4);
+            string colInput = ReadLineAt(canvasHeight + 5);
             if (!string.IsNullOrEmpty(colInput))
             {
                 if (!Enum.TryParse(colInput, true, out color))
@@ -250,11 +335,11 @@ namespace ConsolePaint
             if (!TryReadInt(out y)) return false;
 
             PrintMessage("Символ точки (Enter=*)");
-            string symInput = ReadLineAt(canvasHeight + 4);
+            string symInput = ReadLineAt(canvasHeight + 5);  //было 4
             if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
 
             PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 4);
+            string colInput = ReadLineAt(canvasHeight + 5);
             if (!string.IsNullOrEmpty(colInput))
             {
                 if (!Enum.TryParse(colInput, true, out color))
@@ -286,11 +371,11 @@ namespace ConsolePaint
             if (!TryReadInt(out y2)) return false;
 
             PrintMessage("Символ прямоугольника (Enter=#)");
-            string symInput = ReadLineAt(canvasHeight + 4);
+            string symInput = ReadLineAt(canvasHeight + 5);  //было 4
             if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
 
             PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 4);
+            string colInput = ReadLineAt(canvasHeight + 5);
             if (!string.IsNullOrEmpty(colInput))
             {
                 if (!Enum.TryParse(colInput, true, out color))
