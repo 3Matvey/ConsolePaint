@@ -7,7 +7,6 @@ namespace ConsolePaint
         public static Shape CreateLine(int x1, int y1, int x2, int y2, char symbol = '*', ConsoleColor color = ConsoleColor.White)
             => new Line(x1, y1, x2, y2, symbol, color);
         
-
         public static Shape CreatePoint(int x, int y, char symbol = '*', ConsoleColor color = ConsoleColor.White)
             => new Point(x, y, symbol, color);
 

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Security.Cryptography;
 using ConsolePaint;
 using ConsolePaint.Shapes;
 
 namespace ConsolePaint
 {
-    public class Terminal
+    public partial class Terminal
     {
         private Canvas canvas;
 
@@ -169,6 +170,7 @@ namespace ConsolePaint
                     if (PromptLineInput(out int x1, out int y1, out int x2, out int y2, out char lineSym, out ConsoleColor lineColor))
                     {
                         // Добавление линии
+                        
                         Shape s = ShapeFactory.CreateLine(x1, y1, x2, y2, lineSym, lineColor);
                         canvas.AddShape(s);
                     }
@@ -218,172 +220,7 @@ namespace ConsolePaint
             DrawCursor();
         }
 
-        private bool PromptEllipseInput(out int x, out int y, out int radiusX, out int radiusY, out char symbol, out ConsoleColor color)
-        {
-            x = y = radiusX = radiusY = 0;
-            symbol = '*';
-            color = ConsoleColor.White;
-
-            PrintMessage("Введите координаты центра (X):");
-            if (!TryReadInt(out x)) return false;
-
-            PrintMessage("Введите координаты центра (Y):");
-            if (!TryReadInt(out y)) return false;
-
-            PrintMessage("Введите радиус по X:");
-            if (!TryReadInt(out radiusX)) return false;
-
-            PrintMessage("Введите радиус по Y:");
-            if (!TryReadInt(out radiusY)) return false;
-
-            PrintMessage("Символ для эллипса (Enter=*)");
-            string symInput = ReadLineAt(canvasHeight + 4);
-            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
-
-            PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 4);
-            if (!string.IsNullOrEmpty(colInput))
-            {
-                if (!Enum.TryParse(colInput, true, out color))
-                    color = ConsoleColor.White;
-            }
-            return true;
-        }
-
-        private bool PromptTriangleInput(out int x1, out int y1, out int x2, out int y2, out int x3, out int y3, out char symbol, out ConsoleColor color)
-        {
-            x1 = y1 = x2 = y2 = x3 = y3 = 0;
-            symbol = '*';
-            color = ConsoleColor.White;
-
-            PrintMessage("Введите координаты первой вершины (X1 Y1):");
-            if (!TryReadInt(out x1)) return false;
-            if (!TryReadInt(out y1)) return false;
-
-            PrintMessage("Введите координаты второй вершины (X2 Y2):");
-            if (!TryReadInt(out x2)) return false;
-            if (!TryReadInt(out y2)) return false;
-
-            PrintMessage("Введите координаты третьей вершины (X3 Y3):");
-            if (!TryReadInt(out x3)) return false;
-            if (!TryReadInt(out y3)) return false;
-
-            PrintMessage("Символ для треугольника (Enter=*)");
-            string symInput = ReadLineAt(canvasHeight + 4);
-            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
-
-            PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 4);
-            if (!string.IsNullOrEmpty(colInput))
-            {
-                if (!Enum.TryParse(colInput, true, out color))
-                    color = ConsoleColor.White;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Запрашивает у пользователя параметры для линии (x1,y1,x2,y2, символ, цвет).
-        /// Возвращает true, если ввод корректен.
-        /// </summary>
-        private bool PromptLineInput(out int x1, out int y1, out int x2, out int y2,
-                                     out char symbol, out ConsoleColor color)
-        {
-            x1 = y1 = x2 = y2 = 0;
-            symbol = '*';
-            color = ConsoleColor.White;
-
-            PrintMessage("Введите X1:");
-            if (!TryReadInt(out x1)) return false;
-
-            PrintMessage("Введите Y1:");
-            if (!TryReadInt(out y1)) return false;
-
-            PrintMessage("Введите X2:");
-            if (!TryReadInt(out x2)) return false;
-
-            PrintMessage("Введите Y2:");
-            if (!TryReadInt(out y2)) return false;
-
-            PrintMessage("Символ для линии (Enter=*)");
-            string symInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
-
-            PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(colInput))
-            {
-                if (!Enum.TryParse(colInput, true, out color))
-                    color = ConsoleColor.White;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Запрашивает координаты (x, y), символ и цвет для точки.
-        /// </summary>
-        private bool PromptPointInput(out int x, out int y, out char symbol, out ConsoleColor color)
-        {
-            x = y = 0;
-            symbol = '*';
-            color = ConsoleColor.White;
-
-            PrintMessage("Введите X:");
-            if (!TryReadInt(out x)) return false;
-
-            PrintMessage("Введите Y:");
-            if (!TryReadInt(out y)) return false;
-
-            PrintMessage("Символ точки (Enter=*)");
-            string symInput = ReadLineAt(canvasHeight + 5);  //было 4
-            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
-
-            PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(colInput))
-            {
-                if (!Enum.TryParse(colInput, true, out color))
-                    color = ConsoleColor.White;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Запрашивает координаты (x1,y1,x2,y2), символ и цвет для прямоугольника.
-        /// </summary>
-        private bool PromptRectangleInput(out int x1, out int y1, out int x2, out int y2,
-                                          out char symbol, out ConsoleColor color)
-        {
-            x1 = y1 = x2 = y2 = 0;
-            symbol = '#';
-            color = ConsoleColor.White;
-
-            PrintMessage("Введите X1 (левый верх):");
-            if (!TryReadInt(out x1)) return false;
-
-            PrintMessage("Введите Y1 (левый верх):");
-            if (!TryReadInt(out y1)) return false;
-
-            PrintMessage("Введите X2 (правый низ):");
-            if (!TryReadInt(out x2)) return false;
-
-            PrintMessage("Введите Y2 (правый низ):");
-            if (!TryReadInt(out y2)) return false;
-
-            PrintMessage("Символ прямоугольника (Enter=#)");
-            string symInput = ReadLineAt(canvasHeight + 5);  //было 4
-            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
-
-            PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(colInput))
-            {
-                if (!Enum.TryParse(colInput, true, out color))
-                    color = ConsoleColor.White;
-            }
-            return true;
-        }
-
+        
         /// <summary>
         /// Рисует меню внизу (строка canvasHeight+2).
         /// </summary>
@@ -555,6 +392,5 @@ namespace ConsolePaint
             Console.Write(oldPixel.Symbol);
             Console.ForegroundColor = ConsoleColor.White;
         }
-
     }
 }
