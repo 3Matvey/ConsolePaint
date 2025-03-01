@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Security.Cryptography;
-using ConsolePaint;
-using ConsolePaint.Shapes;
-
-namespace ConsolePaint
+﻿namespace ConsolePaint
 {
     public partial class Terminal
     {
@@ -18,7 +11,6 @@ namespace ConsolePaint
         // Положение курсора (0..canvasWidth-1, 0..canvasHeight-1)
         private int cursorX;
         private int cursorY;
-
         // Если фигура выбрана, стрелки перемещают её
         private Shape selectedShape = null;
 

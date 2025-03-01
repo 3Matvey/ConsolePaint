@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ConsolePaint.Shapes;
-
-namespace ConsolePaint
+﻿namespace ConsolePaint
 {
     public class Canvas
     {
@@ -12,6 +8,7 @@ namespace ConsolePaint
         private List<Shape> shapes;  // Список фигур, добавляемых через методы AddShape и т.д.
 
         public int Height => height;
+        public int Width => width;
 
         public Canvas(int width, int height)
         {
@@ -30,11 +27,12 @@ namespace ConsolePaint
         {
             // Верхняя граница
             Console.SetCursorPosition(0, 0);
-            Console.Write(" ");
+            Console.Write(0);
             for (int i = 0; i < width; i++)
             {
                 Console.Write("_");
             }
+            Console.Write(width);
             Console.WriteLine();
 
             // Боковые границы
@@ -51,7 +49,7 @@ namespace ConsolePaint
 
             // Нижняя граница
             Console.SetCursorPosition(0, height + 1);
-            Console.Write(" ");
+            Console.Write(height);
             for (int i = 0; i < width; i++)
             {
                 Console.Write("_");
@@ -167,26 +165,5 @@ namespace ConsolePaint
             }
             return new Pixel(x, y, ' ', ConsoleColor.Black);
         }
-
-        /// <summary>
-        /// Методы-обёртки для создания фигур через статическую фабрику.
-        /// </summary>
-        //public void AddLine(int x1, int y1, int x2, int y2, char symbol = '*', ConsoleColor color = ConsoleColor.White)
-        //{
-        //    Shape s = ShapeFactory.CreateLine(x1, y1, x2, y2, symbol, color);
-        //    AddShape(s);
-        //}
-
-        //public void AddPoint(int x, int y, char symbol = '*', ConsoleColor color = ConsoleColor.White)
-        //{
-        //    Shape s = ShapeFactory.CreatePoint(x, y, symbol, color);
-        //    AddShape(s);
-        //}
-
-        //public void AddRectangle(int x1, int y1, int x2, int y2, char symbol = '#', ConsoleColor color = ConsoleColor.White)
-        //{
-        //    Shape s = ShapeFactory.CreateRectangle(x1, y1, x2, y2, symbol, color);
-        //    AddShape(s);
-        //}
     }
 }
