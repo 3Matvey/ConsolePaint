@@ -9,8 +9,6 @@
         {
             this.x = x;
             this.y = y;
-            this.symbol = symbol;
-            this.color = color;
             CalculatePixels();  // Изначально рассчитываем пиксели
         }
 
@@ -22,7 +20,7 @@
             InnerPixels.Clear();  // Для точки внутренних пикселей нет
 
             // Добавляем пиксель для точки
-            OuterPixels.Add(new Pixel(x, y, symbol, color));
+            OuterPixels.Add(new Pixel(x, y, Symbol, Color));
         }
     }
 }

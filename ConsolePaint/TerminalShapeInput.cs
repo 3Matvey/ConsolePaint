@@ -196,19 +196,54 @@
 
         private void TempPointsRemove(Shape[] shapes)
         {
-            foreach (var s in shapes) 
+            foreach (var s in shapes)
             {
                 canvas.RemoveShape(s);
             }
         }
-    }
 
-    //file class TempPoint 
-    //{
-    //    public void TempPointDraw(int x, int y, out Shape tempPoint)
-    //    {
-    //        tempPoint = ShapeFactory.CreatePoint(x, y, '*', ConsoleColor.Red);
-    //        canvas.AddShape(tempPoint);
-    //    }
-    //}
+
+        // Новый метод для сохранения холста:
+        private void SaveCanvas()
+        {
+            PrintMessage("Введите имя файла для сохранения (например, canvas.json):");
+            string filename = ReadLineAt(canvasHeight + 3);
+            FileManager.SaveShapesToFile(canvas.GetShapes(), filename);
+            PrintMessage("Холст сохранен в " + filename + ". Нажмите Enter.");
+            ReadLineAt(canvasHeight + 3);
+        }
+
+        // Новый метод для загрузки холста:
+        private void LoadCanvas()
+        {
+            PrintMessage("Введите имя файла для загрузки (например, canvas.json):");
+            string filename = ReadLineAt(canvasHeight + 3);
+            List<Shape> loadedShapes = FileManager.LoadShapesFromFile(filename);
+            if (loadedShapes != null && loadedShapes.Count > 0)
+            {
+                //canvas.ClearShapes();
+                foreach (Shape s in loadedShapes)
+                {
+                    canvas.AddShape(s);
+                }
+                canvas.RedrawAllShapes();
+                PrintMessage("Холст загружен из " + filename + ". Нажмите Enter.");
+                ReadLineAt(canvasHeight + 3);
+            }
+            else
+            {
+                PrintMessage("Не удалось загрузить холст из " + filename + ". Нажмите Enter.");
+                ReadLineAt(canvasHeight + 3);
+            }
+        }
+
+        //file class TempPoint 
+        //{
+        //    public void TempPointDraw(int x, int y, out Shape tempPoint)
+        //    {
+        //        tempPoint = ShapeFactory.CreatePoint(x, y, '*', ConsoleColor.Red);
+        //        canvas.AddShape(tempPoint);
+        //    }
+        //}
+    }
 }

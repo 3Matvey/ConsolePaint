@@ -13,8 +13,6 @@ namespace ConsolePaint.Shapes
             this.centerY = centerY;
             this.radiusX = radiusX;
             this.radiusY = radiusY;
-            this.symbol = symbol;
-            this.color = color;
             CalculatePixels();
         }
 
@@ -32,9 +30,9 @@ namespace ConsolePaint.Shapes
                     if (distance <= 1)
                     {
                         if (Math.Abs(distance - 1) < 0.05)
-                            OuterPixels.Add(new Pixel(x, y, symbol, color));  // Контур
+                            OuterPixels.Add(new Pixel(x, y, Symbol, Color));  // Контур
                         else
-                            InnerPixels.Add(new Pixel(x, y, ' ', color));  // Внутренние пиксели
+                            InnerPixels.Add(new Pixel(x, y, ' ', Color));  // Внутренние пиксели
                     }
                 }
             }

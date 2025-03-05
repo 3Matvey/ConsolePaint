@@ -58,7 +58,7 @@ namespace ConsolePaint.Shapes
                             // Чтобы избежать дублирования контура, проверяем, не находится ли пиксель уже в OuterPixels
                             if (!OuterPixels.Any(p => p.X == x && p.Y == y))
                             {
-                                InnerPixels.Add(new Pixel(x, y, ' ', color)); //to
+                                InnerPixels.Add(new Pixel(x, y, ' ', Color)); //to
                             }
                         }
                     }
@@ -80,7 +80,7 @@ namespace ConsolePaint.Shapes
             int cx = x1, cy = y1;
             while (true)
             {
-                OuterPixels.Add(new Pixel(cx, cy, symbol, color));
+                OuterPixels.Add(new Pixel(cx, cy, Symbol, Color));
 
                 if (cx == x2 && cy == y2)
                     break;

@@ -5,22 +5,39 @@ namespace ConsolePaint
 {
     public abstract class Shape
     {
-        public int Id { get; }  // Уникальный идентификатор для каждой фигуры
-        private static int idCounter = 0;   // Счётчик для генерации ID
-        public List<Pixel> OuterPixels { get; private set; }
-        public List<Pixel> InnerPixels { get; private set; }
+        private static int idCounter = 0;
 
-        private protected char symbol;
-        private protected ConsoleColor color;
+        // Делаем публичное свойство с сеттером (если нужно восстанавливать из JSON)
+        public int Id { get; set; }
 
-        public Shape(char symbol, ConsoleColor color)
+        // Чтобы JSON мог инициализировать, делаем свойства вместо полей
+        public char Symbol { get; set; }
+        public ConsoleColor Color { get; set; }
+
+        // Аналогично для списков
+        public List<Pixel> OuterPixels { get; set; }
+        public List<Pixel> InnerPixels { get; set; }
+
+        // Публичный конструктор без параметров, нужен для десериализации
+        public Shape()
         {
             Id = idCounter++;
-            OuterPixels = [];  
-            InnerPixels = [];  
-            this.symbol = symbol;
-            this.color = color;
+            OuterPixels = new List<Pixel>();
+            InnerPixels = new List<Pixel>();
+            Symbol = ' ';              // какое-то значение по умолчанию
+            Color = ConsoleColor.White; // какое-то значение по умолчанию
         }
+
+        // Если нужен ещё и ваш “старый” конструктор — оставляем
+        protected Shape(char symbol, ConsoleColor color)
+        {
+            Id = idCounter++;
+            OuterPixels = new List<Pixel>();
+            InnerPixels = new List<Pixel>();
+            Symbol = symbol;
+            Color = color;
+        }
+
 
         // Метод для вычисления пикселей фигуры 
         protected abstract void CalculatePixels();

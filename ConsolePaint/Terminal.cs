@@ -32,8 +32,6 @@
         public void Run()
         {
             Console.Clear();
-
-            // Рисуем рамку и фигуры (если есть)
             canvas.DrawFrame();
             canvas.RedrawAllShapes();
             DrawMenu();
@@ -49,13 +47,12 @@
                 }
                 else if (keyInfo.Key == ConsoleKey.Enter)
                 {
-                    // Выбор/снятие выбора фигуры
                     if (selectedShape == null)
                     {
                         selectedShape = GetShapeAtCursor();
                         if (selectedShape != null)
                         {
-                            PrintMessage("Фигура выбрана. Стрелки перемещают её. [X] - Удалить. [F] - Заливка. Нажмите Enter для отмены выбора.");
+                            PrintMessage("Фигура выбрана. Стрелки перемещают её. Нажмите Enter для отмены выбора.");
                         }
                         else
                         {
@@ -70,7 +67,6 @@
                 }
                 else if (keyInfo.Key == ConsoleKey.X)
                 {
-                    // Удаляем выбранную фигуру
                     if (selectedShape != null)
                     {
                         canvas.RemoveShape(selectedShape);
@@ -85,12 +81,10 @@
                 }
                 else if (keyInfo.Key == ConsoleKey.D)
                 {
-                    // Показываем меню добавления фигур
                     ShowAddShapeMenu();
                 }
                 else if (keyInfo.Key == ConsoleKey.F)
                 {
-                    // Заливка выбранной фигуры
                     if (selectedShape != null)
                     {
                         PrintMessage("Введите символ заливки (Enter = +):");
@@ -101,14 +95,11 @@
                         string fillCol = ReadLineAt(canvasHeight + 5);
                         ConsoleColor fillColor = Enum.TryParse(fillCol, true, out fillColor) ? fillColor : ConsoleColor.White;
 
-                        // Обновляем внутренние пиксели выбранной фигуры
                         foreach (var p in selectedShape.InnerPixels)
                         {
                             p.Symbol = fillSymbol;
                             p.Color = fillColor;
                         }
-
-                        // Вызываем метод заливки, который отрисовывает внутренние пиксели
                         canvas.Fill(selectedShape);
                         PrintMessage("Заливка применена. Нажмите Enter.");
                         ReadLineAt(canvasHeight + 3);
@@ -118,6 +109,16 @@
                         PrintMessage("Нет выбранной фигуры для заливки.");
                         ReadLineAt(canvasHeight + 3);
                     }
+                }
+                else if (keyInfo.Key == ConsoleKey.S)
+                {
+                    // Сохранение холста в файл
+                    SaveCanvas();
+                }
+                else if (keyInfo.Key == ConsoleKey.L)
+                {
+                    // Загрузка холста из файла
+                    LoadCanvas();
                 }
                 else if (IsArrowKey(keyInfo.Key))
                 {
@@ -129,19 +130,18 @@
 
                     if (selectedShape != null)
                     {
-                        // Перемещаем выбранную фигуру
                         EraseShape(selectedShape);
                         selectedShape.Move(dx, dy);
                         canvas.RedrawAllShapes();
                     }
                     else
                     {
-                        // Перемещаем курсор
                         MoveCursor(dx, dy);
                     }
                 }
             }
         }
+
 
 
         /// <summary>
@@ -221,7 +221,7 @@
             int row = canvasHeight + 2;
             ClearLine(row);
             Console.SetCursorPosition(0, row);
-            Console.WriteLine("Меню: [D] - добавить фигуру, [Enter] - выбрать/снять выбор, [Esc] - выход");
+            Console.WriteLine("Меню: [D] - добавить фигуру,  [S] - сохранить, [L] - загрузить, [Enter] - выбрать/снять выбор, [Esc] - выход");
         }
 
         /// <summary>
