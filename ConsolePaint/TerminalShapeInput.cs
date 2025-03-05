@@ -210,7 +210,10 @@ namespace ConsolePaint
         {
             PrintMessage("Введите имя файла для сохранения (например, canvas):");
             string filename = ReadLineAt(canvasHeight + 5);
-            filename += ".json";
+            if (!filename.EndsWith(".json"))
+            {
+                filename += ".json";
+            } 
             FileManager.SaveShapesToFile(canvas.GetShapes(), filename);
             PrintMessage("Холст сохранен в " + filename + ". Нажмите Enter.");
             ReadLineAt(canvasHeight + 5);
@@ -221,24 +224,6 @@ namespace ConsolePaint
             PrintMessage("Введите имя файла для загрузки (например, canvas):");
             string filename = ReadLineAt(canvasHeight + 5);
             LoadCanvas(filename);
-            //filename += ".json";
-            //List<Shape> loadedShapes = FileManager.LoadShapesFromFile(filename);
-            //if (loadedShapes != null && loadedShapes.Count > 0)
-            //{
-            //    //canvas.ClearShapes();
-            //    foreach (Shape s in loadedShapes)
-            //    {
-            //        canvas.AddShape(s);
-            //    }
-            //    canvas.RedrawAllShapes();
-            //    PrintMessage("Холст загружен из " + filename + ". Нажмите Enter.");
-            //    ReadLineAt(canvasHeight + 5);
-            //}
-            //else
-            //{
-            //    PrintMessage("Не удалось загрузить холст из " + filename + ". Нажмите Enter.");
-            //    ReadLineAt(canvasHeight + 5);
-            //}
         }
 
         private void LoadCanvas(string filename) 
