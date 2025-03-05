@@ -32,10 +32,9 @@ namespace ConsolePaint.Shapes
                     if (distance <= 1)
                     {
                         if (Math.Abs(distance - 1) < 0.05)
-                            OuterPixels.Add(new Pixel(x, y, Symbol, Color));  // Контур
+                            OuterPixels.Add(new Pixel(x, y, Symbol, Color));  
                         else
-                            InnerPixels.Add(new Pixel(x, y, ' ', Color));  // Внутренние пиксели
-                    }
+                            InnerPixels.Add(new Pixel(x, y, ' ', Color));                     }
                 }
             }
         }

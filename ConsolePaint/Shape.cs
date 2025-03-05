@@ -3,7 +3,6 @@
     public abstract class Shape
     {
         private static int idCounter = 0;
-
         public int Id { get; set; }
 
         public char Symbol { get; set; }

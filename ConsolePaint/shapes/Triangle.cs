@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace ConsolePaint.Shapes
+﻿namespace ConsolePaint.Shapes
 {
     public class Triangle : Shape
     {
@@ -105,7 +103,7 @@ namespace ConsolePaint.Shapes
         /// Для заданной скан-линии с координатой y вычисляет точку пересечения с ребром (x1,y1)-(x2,y2)
         /// и добавляет её в список nodeX, если скан-линия пересекает ребро.
         /// </summary>
-        private void ComputeIntersection(int x1, int y1, int x2, int y2, int scanlineY, List<double> nodeX)
+        private static void ComputeIntersection(int x1, int y1, int x2, int y2, int scanlineY, List<double> nodeX)
         {
             // Проверяем, пересекается ли скан-линия с ребром
             if ((y1 < scanlineY && y2 >= scanlineY) || (y2 < scanlineY && y1 >= scanlineY))

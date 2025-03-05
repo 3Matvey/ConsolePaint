@@ -81,11 +81,8 @@ namespace ConsolePaint.Terminal
                     {
                         var addAction = new RemoveShapeAction(canvas, selectedShape);
                         undoManager.ExecuteAction(addAction);
-
-                        //canvas.RemoveShape(selectedShape);   //метка
                         selectedShape = null;
                         PrintMessage("Выбранная фигура удалена.");
-                       // canvas.RedrawAllShapes();
                     }
                     else
                     {

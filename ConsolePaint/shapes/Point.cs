@@ -12,17 +12,14 @@ namespace ConsolePaint.Shapes
         {
             this.x = x;
             this.y = y;
-            CalculatePixels();  // Изначально рассчитываем пиксели
+            CalculatePixels();  
         }
 
-        // Метод для вычисления пикселей точки
         protected override void CalculatePixels()
         {
-            // Очищаем старые пиксели
             OuterPixels.Clear();
-            InnerPixels.Clear();  // Для точки внутренних пикселей нет
+            InnerPixels.Clear(); 
 
-            // Добавляем пиксель для точки
             OuterPixels.Add(new Pixel(x, y, Symbol, Color));
         }
     }

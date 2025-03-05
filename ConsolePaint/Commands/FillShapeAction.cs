@@ -14,9 +14,9 @@
             this.shape = shape;
             this.newSymbol = newSymbol;
             this.newColor = newColor;
-            originalState = new List<(int, char, ConsoleColor)>();
+            originalState = [];
 
-            // Сохраняем исходное состояние внутренних пикселей фигуры
+            // исходное состояние внутренних пикселей фигуры
             for (int i = 0; i < shape.InnerPixels.Count; i++)
             {
                 var p = shape.InnerPixels[i];
@@ -26,7 +26,6 @@
 
         public void Execute()
         {
-            // Применяем новую заливку ко всем внутренним пикселям
             foreach (var pixel in shape.InnerPixels)
             {
                 pixel.Symbol = newSymbol;
@@ -37,7 +36,7 @@
 
         public void Undo()
         {
-            // Восстанавливаем сохраненное состояние внутренних пикселей
+            // сохраненное состояние внутренних пикселей
             foreach (var (index, oldSymbol, oldColor) in originalState)
             {
                 if (index < shape.InnerPixels.Count)
