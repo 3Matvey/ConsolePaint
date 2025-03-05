@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ConsolePaint")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a5f67a442746b6d07484d736cad476ca313bbbae")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+56a2093f4b35674353b20a986b15159bbf1fcdd6")]
 [assembly: System.Reflection.AssemblyProductAttribute("ConsolePaint")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ConsolePaint")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

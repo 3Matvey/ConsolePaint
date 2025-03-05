@@ -4,25 +4,38 @@
     {
         private Canvas canvas;
 
-        // Размер внутренней области холста
         private int canvasWidth;
         private int canvasHeight;
 
-        // Положение курсора (0..canvasWidth-1, 0..canvasHeight-1)
         private int cursorX;
         private int cursorY;
-        // Если фигура выбрана, стрелки перемещают её
-        private Shape selectedShape = null;
 
-        // Сколько строк внизу зарезервируем под меню/ввод
+        private Shape? selectedShape = null;
+
         private const int MENU_LINES = 8;
+
+        public Terminal()
+        {
+            canvasWidth = Console.WindowWidth - 10;
+            canvasHeight = Console.WindowHeight - 10;
+
+            canvas = new Canvas(canvasWidth, canvasHeight);
+
+            cursorX = 0;
+            cursorY = 0;
+        }
+
+        public Terminal(string fileName) 
+            : this()
+        {
+            LoadCanvas(fileName);
+        }
 
         public Terminal(int canvasWidth, int canvasHeight)
         {
             this.canvasWidth = canvasWidth;
             this.canvasHeight = canvasHeight;
 
-            // Инициализируем Canvas, где хранятся и рисуются фигуры
             canvas = new Canvas(canvasWidth, canvasHeight);
 
             cursorX = 0;
@@ -52,7 +65,7 @@
                         selectedShape = GetShapeAtCursor();
                         if (selectedShape != null)
                         {
-                            PrintMessage("Фигура выбрана. Стрелки перемещают её. Нажмите Enter для отмены выбора.");
+                            PrintMessage("Фигура выбрана. Стрелки перемещают её. [X] - удалить. [F] - заливка. Нажмите Enter для отмены выбора.");
                         }
                         else
                         {
@@ -101,23 +114,21 @@
                             p.Color = fillColor;
                         }
                         canvas.Fill(selectedShape);
-                        PrintMessage("Заливка применена. Нажмите Enter.");
-                        ReadLineAt(canvasHeight + 3);
+                        PrintMessage("Заливка применена. Дважды Нажмите Enter.");
+                        ReadLineAt(canvasHeight + 5);
                     }
                     else
                     {
                         PrintMessage("Нет выбранной фигуры для заливки.");
-                        ReadLineAt(canvasHeight + 3);
+                        ReadLineAt(canvasHeight + 5);
                     }
                 }
                 else if (keyInfo.Key == ConsoleKey.S)
                 {
-                    // Сохранение холста в файл
                     SaveCanvas();
                 }
                 else if (keyInfo.Key == ConsoleKey.L)
                 {
-                    // Загрузка холста из файла
                     LoadCanvas();
                 }
                 else if (IsArrowKey(keyInfo.Key))
@@ -154,15 +165,13 @@
 
             ClearMenuArea();
             PrintMessage("Добавить фигуру: [1] Линия, [2] Точка, [3] Прямоугольник, [4] Эллипс, [5] Треугольник");
-            string choice = ReadLineAt(canvasHeight + 3);
+            string choice = ReadLineAt(canvasHeight + 5);
 
             switch (choice)
             {
                 case "1":
                     if (PromptLineInput(out int x1, out int y1, out int x2, out int y2, out char lineSym, out ConsoleColor lineColor))
                     {
-                        // Добавление линии
-                        
                         Shape s = ShapeFactory.CreateLine(x1, y1, x2, y2, lineSym, lineColor);
                         canvas.AddShape(s);
                     }
@@ -170,7 +179,6 @@
                 case "2":
                     if (PromptPointInput(out int px, out int py, out char pSym, out ConsoleColor pColor))
                     {
-                        // Добавление точки
                         Shape s = ShapeFactory.CreatePoint(px, py, pSym, pColor);
                         canvas.AddShape(s);
                     }
@@ -178,7 +186,6 @@
                 case "3":
                     if (PromptRectangleInput(out int rx1, out int ry1, out int rx2, out int ry2, out char rSym, out ConsoleColor rColor))
                     {
-                        // Добавление прямоугольника
                         Shape s = ShapeFactory.CreateRectangle(rx1, ry1, rx2, ry2, rSym, rColor);
                         canvas.AddShape(s);
                     }
@@ -186,7 +193,6 @@
                 case "4":
                     if (PromptEllipseInput(out int ex, out int ey, out int exRadius, out int eyRadius, out char eSym, out ConsoleColor eColor))
                     {
-                        // Добавление эллипса
                         Shape s = ShapeFactory.CreateEllipse(ex, ey, exRadius, eyRadius, eSym, eColor);
                         canvas.AddShape(s);
                     }
@@ -196,13 +202,11 @@
                     {
                         Shape s = ShapeFactory.CreateTriangle(tx1, ty1, tx2, ty2, tx3, ty3, tSym, tColor);
                         canvas.AddShape(s);
-                        // Добавление треугольника
-                        //canvas.AddTriangle(tx1, ty1, tx2, ty2, tx3, ty3, tSym, tColor);
                     }
                     break;
                 default:
-                    PrintMessage("Неверный выбор. Нажмите Enter.");
-                    ReadLineAt(canvasHeight + 3);
+                    PrintMessage("Неверный выбор. Дважды Нажмите Enter.");
+                    ReadLineAt(canvasHeight + 5);
                     break;
             }
 
@@ -221,7 +225,7 @@
             int row = canvasHeight + 2;
             ClearLine(row);
             Console.SetCursorPosition(0, row);
-            Console.WriteLine("Меню: [D] - добавить фигуру,  [S] - сохранить, [L] - загрузить, [Enter] - выбрать/снять выбор, [Esc] - выход");
+            Console.WriteLine("Меню: [D] - добавить фигуру, [S] - сохранить, [L] - загрузить, [Enter] - выбрать/снять выбор, [Esc] - выход");
         }
 
         /// <summary>
@@ -242,7 +246,7 @@
         /// <summary>
         /// Находит фигуру под курсором.
         /// </summary>
-        private Shape GetShapeAtCursor()
+        private Shape? GetShapeAtCursor()
         {
             var allShapes = canvas.GetShapes();
             foreach (var s in allShapes)
@@ -293,7 +297,7 @@
         private static void ClearLine(int row)
         {
             Console.SetCursorPosition(0, row);
-            Console.Write(new string(' ', 120));
+            Console.Write(new string(' ', 120));   
             Console.SetCursorPosition(0, row);
         }
 
@@ -308,7 +312,7 @@
             if (!int.TryParse(input, out result))
             {
                 PrintMessage("Ошибка ввода (не целое число)!");
-                ReadLineAt(row);  // Ждём Enter
+                ReadLineAt(row);  // Ждать Enter
                 return false;
             }
             return true;
@@ -317,7 +321,7 @@
         /// <summary>
         /// Считывает строку на указанной строке (row) и очищает её после ввода.
         /// </summary>
-        private string ReadLineAt(int row)
+        private static string ReadLineAt(int row)
         {
             Console.SetCursorPosition(0, row);
             string input = Console.ReadLine();

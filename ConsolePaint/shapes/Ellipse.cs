@@ -6,6 +6,8 @@ namespace ConsolePaint.Shapes
     {
         private int centerX, centerY, radiusX, radiusY;
         
+        public Ellipse() : base() { }
+
         public Ellipse(int centerX, int centerY, int radiusX, int radiusY, char symbol, ConsoleColor color)
             : base(symbol, color)
         {

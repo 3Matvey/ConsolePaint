@@ -1,4 +1,6 @@
-﻿namespace ConsolePaint
+﻿using System.Globalization;
+
+namespace ConsolePaint
 {
     public partial class Terminal
     {
@@ -206,18 +208,45 @@
         // Новый метод для сохранения холста:
         private void SaveCanvas()
         {
-            PrintMessage("Введите имя файла для сохранения (например, canvas.json):");
-            string filename = ReadLineAt(canvasHeight + 3);
+            PrintMessage("Введите имя файла для сохранения (например, canvas):");
+            string filename = ReadLineAt(canvasHeight + 5);
+            filename += ".json";
             FileManager.SaveShapesToFile(canvas.GetShapes(), filename);
             PrintMessage("Холст сохранен в " + filename + ". Нажмите Enter.");
-            ReadLineAt(canvasHeight + 3);
+            ReadLineAt(canvasHeight + 5);
         }
-
         // Новый метод для загрузки холста:
         private void LoadCanvas()
         {
-            PrintMessage("Введите имя файла для загрузки (например, canvas.json):");
-            string filename = ReadLineAt(canvasHeight + 3);
+            PrintMessage("Введите имя файла для загрузки (например, canvas):");
+            string filename = ReadLineAt(canvasHeight + 5);
+            LoadCanvas(filename);
+            //filename += ".json";
+            //List<Shape> loadedShapes = FileManager.LoadShapesFromFile(filename);
+            //if (loadedShapes != null && loadedShapes.Count > 0)
+            //{
+            //    //canvas.ClearShapes();
+            //    foreach (Shape s in loadedShapes)
+            //    {
+            //        canvas.AddShape(s);
+            //    }
+            //    canvas.RedrawAllShapes();
+            //    PrintMessage("Холст загружен из " + filename + ". Нажмите Enter.");
+            //    ReadLineAt(canvasHeight + 5);
+            //}
+            //else
+            //{
+            //    PrintMessage("Не удалось загрузить холст из " + filename + ". Нажмите Enter.");
+            //    ReadLineAt(canvasHeight + 5);
+            //}
+        }
+
+        private void LoadCanvas(string filename) 
+        {
+            if (!filename.EndsWith(".json")) 
+            {
+                filename += ".json";
+            }
             List<Shape> loadedShapes = FileManager.LoadShapesFromFile(filename);
             if (loadedShapes != null && loadedShapes.Count > 0)
             {
@@ -228,22 +257,13 @@
                 }
                 canvas.RedrawAllShapes();
                 PrintMessage("Холст загружен из " + filename + ". Нажмите Enter.");
-                ReadLineAt(canvasHeight + 3);
+                ReadLineAt(canvasHeight + 5);
             }
             else
             {
                 PrintMessage("Не удалось загрузить холст из " + filename + ". Нажмите Enter.");
-                ReadLineAt(canvasHeight + 3);
+                ReadLineAt(canvasHeight + 5);
             }
         }
-
-        //file class TempPoint 
-        //{
-        //    public void TempPointDraw(int x, int y, out Shape tempPoint)
-        //    {
-        //        tempPoint = ShapeFactory.CreatePoint(x, y, '*', ConsoleColor.Red);
-        //        canvas.AddShape(tempPoint);
-        //    }
-        //}
     }
 }

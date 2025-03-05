@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using ConsolePaint.Shapes;
 
 namespace ConsolePaint
 {
@@ -14,22 +10,35 @@ namespace ConsolePaint
         /// </summary>
         public static void SaveShapesToFile(List<Shape> shapes, string filename)
         {
+            // Проверим, чтобы не было null
+            if (shapes == null) throw new ArgumentNullException(nameof(shapes));
+            if (filename == null) throw new ArgumentNullException(nameof(filename));
+
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                // Преобразователь для перечислений (если используются)
                 Converters = { new JsonStringEnumConverter() }
             };
 
-            // Оборачиваем каждую фигуру в обёртку, которая хранит имя типа и JSON-представление фигуры.
-            List<ShapeWrapper> wrappers = new List<ShapeWrapper>();
+            var wrappers = new List<ShapeWrapper>();
             foreach (var shape in shapes)
             {
-                wrappers.Add(new ShapeWrapper
+                // Защита от случайного null
+                if (shape == null)
+                    continue;
+
+                // AssemblyQualifiedName обычно не null, но перестрахуемся:
+                string typeName = shape.GetType().AssemblyQualifiedName ?? shape.GetType().FullName ?? "UnknownType";
+
+                // Сериализуем саму фигуру
+                string shapeJson = JsonSerializer.Serialize(shape, shape.GetType(), options);
+
+                var wrapper = new ShapeWrapper
                 {
-                    Type = shape.GetType().AssemblyQualifiedName,
-                    Json = JsonSerializer.Serialize(shape, shape.GetType(), options)
-                });
+                    Type = typeName,
+                    Json = shapeJson
+                };
+                wrappers.Add(wrapper);
             }
 
             string json = JsonSerializer.Serialize(wrappers, options);
@@ -41,7 +50,8 @@ namespace ConsolePaint
         /// </summary>
         public static List<Shape> LoadShapesFromFile(string filename)
         {
-            if (!File.Exists(filename))
+            // Если filename null или пуст, или файл не существует — возвращаем пустой список
+            if (string.IsNullOrWhiteSpace(filename) || !File.Exists(filename))
             {
                 return new List<Shape>();
             }
@@ -52,28 +62,52 @@ namespace ConsolePaint
             };
 
             string json = File.ReadAllText(filename);
-            List<ShapeWrapper> wrappers = JsonSerializer.Deserialize<List<ShapeWrapper>>(json, options);
 
-            List<Shape> shapes = new List<Shape>();
+            // Десериализация может вернуть null, если JSON пуст или некорректен
+            List<ShapeWrapper>? wrappers = JsonSerializer.Deserialize<List<ShapeWrapper>>(json, options);
+            if (wrappers == null)
+            {
+                return new List<Shape>();
+            }
+
+            var shapes = new List<Shape>();
             foreach (var wrapper in wrappers)
             {
-                Type type = Type.GetType(wrapper.Type);
-                if (type != null)
+                // Если элемент списка оказался null — пропускаем
+                if (wrapper == null)
+                    continue;
+
+                // Проверяем поля на null
+                if (string.IsNullOrWhiteSpace(wrapper.Type) || string.IsNullOrWhiteSpace(wrapper.Json))
                 {
-                    Shape shape = (Shape)JsonSerializer.Deserialize(wrapper.Json, type, options);
+                    // Можно логировать предупреждение, но здесь просто пропустим
+                    continue;
+                }
+
+                // Попробуем получить Type по строке
+                Type? type = Type.GetType(wrapper.Type);
+                if (type == null)
+                {
+                    // Если тип не найден (например, переименовали класс) — пропускаем
+                    continue;
+                }
+
+                // Десериализуем как object, потом проверяем, что это Shape
+                object? deserialized = JsonSerializer.Deserialize(wrapper.Json, type, options);
+                if (deserialized is Shape shape)
+                {
                     shapes.Add(shape);
                 }
             }
             return shapes;
         }
     }
-
     /// <summary>
     /// Обёртка для сохранения информации о типе фигуры.
     /// </summary>
-    public class ShapeWrapper
+    file class ShapeWrapper
     {
-        public string Type { get; set; }
-        public string Json { get; set; }
+        public string Type { get; set; } = string.Empty;
+        public string Json { get; set; } = string.Empty;
     }
 }
