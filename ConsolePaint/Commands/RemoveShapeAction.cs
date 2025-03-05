@@ -3,17 +3,8 @@ using ConsolePaint;
 
 namespace ConsolePaint.Commands
 {
-    public class RemoveShapeAction : IUndoableAction
+    public class RemoveShapeAction(Canvas canvas, Shape shape) : IUndoableAction
     {
-        private readonly Canvas canvas;
-        private readonly Shape shape;
-
-        public RemoveShapeAction(Canvas canvas, Shape shape)
-        {
-            this.canvas = canvas;
-            this.shape = shape;
-        }
-
         public void Execute()
         {
             canvas.RemoveShape(shape);

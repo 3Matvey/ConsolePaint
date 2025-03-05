@@ -98,6 +98,21 @@
         }
 
         /// <summary>
+        /// Стирает пиксели выбранной фигуры (заменяет их пробелами).
+        /// </summary>
+        public void EraseShape(Shape shape)
+        {
+            foreach (var p in shape.OuterPixels)
+            {
+                SetPixel(p.X, p.Y, ' ', ConsoleColor.Black);
+            }
+            foreach (var p in shape.InnerPixels)
+            {
+                SetPixel(p.X, p.Y, ' ', ConsoleColor.Black);
+            }
+        }
+
+        /// <summary>
         /// Добавляет фигуру в список и сразу отрисовывает её контур.
         /// </summary>
         public void AddShape(Shape shape)

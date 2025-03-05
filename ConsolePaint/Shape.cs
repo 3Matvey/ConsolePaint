@@ -1,50 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ConsolePaint
+﻿namespace ConsolePaint
 {
     public abstract class Shape
     {
         private static int idCounter = 0;
 
-        // Делаем публичное свойство с сеттером (если нужно восстанавливать из JSON)
         public int Id { get; set; }
 
-        // Чтобы JSON мог инициализировать, делаем свойства вместо полей
         public char Symbol { get; set; }
         public ConsoleColor Color { get; set; }
 
-        // Аналогично для списков
         public List<Pixel> OuterPixels { get; set; }
         public List<Pixel> InnerPixels { get; set; }
 
-        // Публичный конструктор без параметров, нужен для десериализации
         public Shape()
         {
             Id = idCounter++;
-            OuterPixels = new List<Pixel>();
-            InnerPixels = new List<Pixel>();
-            Symbol = ' ';              // какое-то значение по умолчанию
-            Color = ConsoleColor.White; // какое-то значение по умолчанию
+            OuterPixels = [];
+            InnerPixels = [];
+            Symbol = ' ';              
+            Color = ConsoleColor.White;
         }
 
-        // Если нужен ещё и ваш “старый” конструктор — оставляем
         protected Shape(char symbol, ConsoleColor color)
         {
             Id = idCounter++;
-            OuterPixels = new List<Pixel>();
-            InnerPixels = new List<Pixel>();
+            OuterPixels = [];
+            InnerPixels = [];
             Symbol = symbol;
             Color = color;
         }
 
 
-        // Метод для вычисления пикселей фигуры 
+        /// <summary>
+        /// Вычислить пиксели фигуры 
+        /// </summary>
         protected abstract void CalculatePixels();
 
         /// <summary>
-        /// Перемещает фигуру на (dx, dy): для каждого пикселя в списках прибавляет dx и dy,
-        /// затем вызывает CalculatePixels() для пересчёта.
+        /// Перемещает фигуру на (dx, dy)
         /// </summary>
         public virtual void Move(int dx, int dy)
         {
@@ -58,7 +51,6 @@ namespace ConsolePaint
                 InnerPixels[i].X += dx;
                 InnerPixels[i].Y += dy;
             }
-            // CalculatePixels();
         }
 
         /// <summary>

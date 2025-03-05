@@ -6,10 +6,10 @@ namespace ConsolePaint.Terminal
     public partial class Terminal
     {
         private readonly Canvas canvas;
-        private UndoManager undoManager;
+        private readonly UndoManager undoManager;
 
-        private int canvasWidth;
-        private int canvasHeight;
+        private readonly int canvasWidth;
+        private readonly int canvasHeight;
 
         private int cursorX;
         private int cursorY;
@@ -24,7 +24,6 @@ namespace ConsolePaint.Terminal
             canvasHeight = Console.WindowHeight - 10;
 
             canvas = new Canvas(canvasWidth, canvasHeight);
-
             undoManager = new UndoManager();
 
             cursorX = 0;
@@ -86,7 +85,7 @@ namespace ConsolePaint.Terminal
                         //canvas.RemoveShape(selectedShape);   //метка
                         selectedShape = null;
                         PrintMessage("Выбранная фигура удалена.");
-                        canvas.RedrawAllShapes();
+                       // canvas.RedrawAllShapes();
                     }
                     else
                     {
@@ -109,12 +108,9 @@ namespace ConsolePaint.Terminal
                         string fillCol = ReadLineAt(canvasHeight + 5);
                         ConsoleColor fillColor = Enum.TryParse(fillCol, true, out fillColor) ? fillColor : ConsoleColor.White;
 
-                        foreach (var p in selectedShape.InnerPixels)
-                        {
-                            p.Symbol = fillSymbol;
-                            p.Color = fillColor;
-                        }
-                        canvas.Fill(selectedShape);
+                        var fillAction = new FillShapeAction(canvas, selectedShape, fillSymbol, fillColor);
+                        undoManager.ExecuteAction(fillAction);
+
                         PrintMessage("Заливка применена. Дважды Нажмите Enter.");
                         ReadLineAt(canvasHeight + 5);
                     }
@@ -143,16 +139,10 @@ namespace ConsolePaint.Terminal
                         case ConsoleKey.RightArrow: dx = 1; break;
                     }
 
-                    //if (keyInfo.Key == ConsoleKey.UpArrow) dy = -1;
-                    //if (keyInfo.Key == ConsoleKey.DownArrow) dy = 1;
-                    //if (keyInfo.Key == ConsoleKey.LeftArrow) dx = -1;
-                    //if (keyInfo.Key == ConsoleKey.RightArrow) dx = 1;
-
                     if (selectedShape != null)
                     {
-                        EraseShape(selectedShape);
-                        selectedShape.Move(dx, dy);
-                        canvas.RedrawAllShapes();
+                        var moveAction = new MoveShapeAction(canvas, selectedShape, dx, dy);
+                        undoManager.ExecuteAction(moveAction);
                     }
                     else
                     {
@@ -243,20 +233,7 @@ namespace ConsolePaint.Terminal
             Console.WriteLine("Меню: [D] - добавить фигуру, [S] - сохранить, [L] - загрузить, [Enter] - выбрать/снять выбор, [Esc] - выход");
         }
 
-        /// <summary>
-        /// Стирает пиксели выбранной фигуры (заменяет их пробелами).
-        /// </summary>
-        private void EraseShape(Shape shape)
-        {
-            foreach (var p in shape.OuterPixels)
-            {
-                canvas.SetPixel(p.X, p.Y, ' ', ConsoleColor.Black);
-            }
-            foreach (var p in shape.InnerPixels)
-            {
-                canvas.SetPixel(p.X, p.Y, ' ', ConsoleColor.Black);
-            }
-        }
+        
 
         /// <summary>
         /// Находит фигуру под курсором.
