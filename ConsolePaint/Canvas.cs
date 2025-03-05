@@ -9,6 +9,8 @@
 
         public int Height => height;
         public int Width => width;
+        
+        public List<Shape> Shapes => shapes;
 
         public Canvas(int width, int height)
         {
@@ -17,7 +19,7 @@
             pixels = new Pixel[width, height];
             shapes = new List<Shape>();
 
-            DrawFrame();
+            //DrawFrame();
         }
 
         /// <summary>
@@ -133,10 +135,6 @@
             }
         }
 
-        /// <summary>
-        /// Возвращает копию списка фигур.
-        /// </summary>
-        public List<Shape> GetShapes() => new List<Shape>(shapes);
 
         /// <summary>
         /// Устанавливает пиксель в указанной точке внутренней области холста.

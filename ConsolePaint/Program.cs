@@ -1,4 +1,4 @@
-﻿using ConsolePaint;
+﻿using ConsolePaint.Terminal;
 
 Terminal terminal = 
                     args.Length != 0 

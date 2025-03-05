@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ConsolePaint
+namespace ConsolePaint.Services
 {
     public static class FileManager
     {
@@ -11,8 +11,8 @@ namespace ConsolePaint
         public static void SaveShapesToFile(List<Shape> shapes, string filename)
         {
             // Проверим, чтобы не было null
-            if (shapes == null) throw new ArgumentNullException(nameof(shapes));
-            if (filename == null) throw new ArgumentNullException(nameof(filename));
+            ArgumentNullException.ThrowIfNull(shapes);
+            ArgumentNullException.ThrowIfNull(filename);
 
             var options = new JsonSerializerOptions
             {

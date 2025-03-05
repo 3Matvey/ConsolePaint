@@ -1,8 +1,12 @@
-﻿namespace ConsolePaint
+﻿using ConsolePaint.Commands;
+using ConsolePaint.Services;
+
+namespace ConsolePaint.Terminal
 {
     public partial class Terminal
     {
-        private Canvas canvas;
+        private readonly Canvas canvas;
+        private UndoManager undoManager;
 
         private int canvasWidth;
         private int canvasHeight;
@@ -10,9 +14,9 @@
         private int cursorX;
         private int cursorY;
 
-        private Shape? selectedShape = null;
+        private Shape? selectedShape;
 
-        private const int MENU_LINES = 8;
+        private const int MenuLines = 8;
 
         public Terminal()
         {
@@ -20,6 +24,8 @@
             canvasHeight = Console.WindowHeight - 10;
 
             canvas = new Canvas(canvasWidth, canvasHeight);
+
+            undoManager = new UndoManager();
 
             cursorX = 0;
             cursorY = 0;
@@ -29,17 +35,6 @@
             : this()
         {
             LoadCanvas(fileName);
-        }
-
-        public Terminal(int canvasWidth, int canvasHeight)
-        {
-            this.canvasWidth = canvasWidth;
-            this.canvasHeight = canvasHeight;
-
-            canvas = new Canvas(canvasWidth, canvasHeight);
-
-            cursorX = 0;
-            cursorY = 0;
         }
 
         public void Run()
@@ -63,14 +58,9 @@
                     if (selectedShape == null)
                     {
                         selectedShape = GetShapeAtCursor();
-                        if (selectedShape != null)
-                        {
-                            PrintMessage("Фигура выбрана. Стрелки перемещают её. [X] - удалить. [F] - заливка. Нажмите Enter для отмены выбора.");
-                        }
-                        else
-                        {
-                            PrintMessage("Фигура не найдена под курсором.");
-                        }
+                        PrintMessage(selectedShape is not null
+                            ? "Фигура выбрана. Стрелки перемещают её. [X] - удалить. [F] - заливка. Нажмите Enter для отмены выбора."
+                            : "Фигура не найдена под курсором.");
                     }
                     else
                     {
@@ -78,11 +68,22 @@
                         PrintMessage("Выбор снят. Стрелки перемещают курсор.");
                     }
                 }
+                else if (keyInfo.Key == ConsoleKey.Z)  // Undo
+                {
+                    undoManager.Undo();
+                }
+                else if (keyInfo.Key == ConsoleKey.Y)  // Redo
+                {
+                    undoManager.Redo();
+                }
                 else if (keyInfo.Key == ConsoleKey.X)
                 {
                     if (selectedShape != null)
                     {
-                        canvas.RemoveShape(selectedShape);
+                        var addAction = new RemoveShapeAction(canvas, selectedShape);
+                        undoManager.ExecuteAction(addAction);
+
+                        //canvas.RemoveShape(selectedShape);   //метка
                         selectedShape = null;
                         PrintMessage("Выбранная фигура удалена.");
                         canvas.RedrawAllShapes();
@@ -134,10 +135,18 @@
                 else if (IsArrowKey(keyInfo.Key))
                 {
                     int dx = 0, dy = 0;
-                    if (keyInfo.Key == ConsoleKey.UpArrow) dy = -1;
-                    if (keyInfo.Key == ConsoleKey.DownArrow) dy = 1;
-                    if (keyInfo.Key == ConsoleKey.LeftArrow) dx = -1;
-                    if (keyInfo.Key == ConsoleKey.RightArrow) dx = 1;
+                    switch (keyInfo.Key)
+                    {
+                        case ConsoleKey.UpArrow: dy = -1; break;
+                        case ConsoleKey.DownArrow: dy = 1; break;
+                        case ConsoleKey.LeftArrow: dx = -1; break;
+                        case ConsoleKey.RightArrow: dx = 1; break;
+                    }
+
+                    //if (keyInfo.Key == ConsoleKey.UpArrow) dy = -1;
+                    //if (keyInfo.Key == ConsoleKey.DownArrow) dy = 1;
+                    //if (keyInfo.Key == ConsoleKey.LeftArrow) dx = -1;
+                    //if (keyInfo.Key == ConsoleKey.RightArrow) dx = 1;
 
                     if (selectedShape != null)
                     {
@@ -166,48 +175,54 @@
             ClearMenuArea();
             PrintMessage("Добавить фигуру: [1] Линия, [2] Точка, [3] Прямоугольник, [4] Эллипс, [5] Треугольник");
             string choice = ReadLineAt(canvasHeight + 5);
-
+            Shape s = null!;
             switch (choice)
             {
                 case "1":
                     if (PromptLineInput(out int x1, out int y1, out int x2, out int y2, out char lineSym, out ConsoleColor lineColor))
                     {
-                        Shape s = ShapeFactory.CreateLine(x1, y1, x2, y2, lineSym, lineColor);
-                        canvas.AddShape(s);
+                        s = ShapeFactory.CreateLine(x1, y1, x2, y2, lineSym, lineColor);
+                       // canvas.AddShape(s);
                     }
                     break;
                 case "2":
                     if (PromptPointInput(out int px, out int py, out char pSym, out ConsoleColor pColor))
                     {
-                        Shape s = ShapeFactory.CreatePoint(px, py, pSym, pColor);
-                        canvas.AddShape(s);
+                        s = ShapeFactory.CreatePoint(px, py, pSym, pColor);
+                        //canvas.AddShape(s);
                     }
                     break;
                 case "3":
                     if (PromptRectangleInput(out int rx1, out int ry1, out int rx2, out int ry2, out char rSym, out ConsoleColor rColor))
                     {
-                        Shape s = ShapeFactory.CreateRectangle(rx1, ry1, rx2, ry2, rSym, rColor);
-                        canvas.AddShape(s);
+                        s = ShapeFactory.CreateRectangle(rx1, ry1, rx2, ry2, rSym, rColor);
+                       // canvas.AddShape(s);
                     }
                     break;
                 case "4":
                     if (PromptEllipseInput(out int ex, out int ey, out int exRadius, out int eyRadius, out char eSym, out ConsoleColor eColor))
                     {
-                        Shape s = ShapeFactory.CreateEllipse(ex, ey, exRadius, eyRadius, eSym, eColor);
-                        canvas.AddShape(s);
+                        s = ShapeFactory.CreateEllipse(ex, ey, exRadius, eyRadius, eSym, eColor);
+                        //canvas.AddShape(s);
                     }
                     break;
                 case "5":
                     if (PromptTriangleInput(out int tx1, out int ty1, out int tx2, out int ty2, out int tx3, out int ty3, out char tSym, out ConsoleColor tColor))
                     {
-                        Shape s = ShapeFactory.CreateTriangle(tx1, ty1, tx2, ty2, tx3, ty3, tSym, tColor);
-                        canvas.AddShape(s);
+                        s = ShapeFactory.CreateTriangle(tx1, ty1, tx2, ty2, tx3, ty3, tSym, tColor);
+                       // canvas.AddShape(s);
                     }
                     break;
                 default:
                     PrintMessage("Неверный выбор. Дважды Нажмите Enter.");
                     ReadLineAt(canvasHeight + 5);
                     break;
+            }
+
+            if (s != null)
+            {
+                var addAction = new AddShapeAction(canvas, s);
+                undoManager.ExecuteAction(addAction);
             }
 
             // Перерисовываем
@@ -248,7 +263,7 @@
         /// </summary>
         private Shape? GetShapeAtCursor()
         {
-            var allShapes = canvas.GetShapes();
+            var allShapes = canvas.Shapes;
             foreach (var s in allShapes)
             {
                 if (s.ContainsPoint(cursorX, cursorY))
@@ -285,7 +300,7 @@
         private void ClearMenuArea()
         {
             int startRow = canvasHeight + 2;
-            for (int i = 0; i < MENU_LINES; i++)
+            for (int i = 0; i < MenuLines; i++)
             {
                 ClearLine(startRow + i);
             }

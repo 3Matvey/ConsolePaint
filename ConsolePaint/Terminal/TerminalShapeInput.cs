@@ -1,6 +1,7 @@
-﻿using System.Globalization;
+﻿using ConsolePaint.Services;
+using System.Globalization;
 
-namespace ConsolePaint
+namespace ConsolePaint.Terminal
 {
     public partial class Terminal
     {
@@ -214,7 +215,7 @@ namespace ConsolePaint
             {
                 filename += ".json";
             } 
-            FileManager.SaveShapesToFile(canvas.GetShapes(), filename);
+            FileManager.SaveShapesToFile(canvas.Shapes, filename);
             PrintMessage("Холст сохранен в " + filename + ". Нажмите Enter.");
             ReadLineAt(canvasHeight + 5);
         }
