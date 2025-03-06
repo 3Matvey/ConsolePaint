@@ -2,13 +2,13 @@
 {
     public class FillShapeAction : IUndoableAction
     {
-        private readonly Canvas canvas;
+        private readonly ICanvas canvas;
         private readonly Shape shape;
         private readonly char newSymbol;
         private readonly ConsoleColor newColor;
         private readonly List<(int index, char oldSymbol, ConsoleColor oldColor)> originalState;
 
-        public FillShapeAction(Canvas canvas, Shape shape, char newSymbol, ConsoleColor newColor)
+        public FillShapeAction(ICanvas canvas, Shape shape, char newSymbol, ConsoleColor newColor)
         {
             this.canvas = canvas;
             this.shape = shape;

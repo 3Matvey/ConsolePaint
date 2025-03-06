@@ -97,7 +97,7 @@ namespace ConsolePaint.Services
     /// </summary>
     file class ShapeWrapper
     {
-        public string Type { get; set; } = string.Empty;
-        public string Json { get; set; } = string.Empty;
+        public string Type { get; init; } = string.Empty;  //=>init
+        public string Json { get; init; } = string.Empty;
     }
 }

@@ -48,106 +48,119 @@ namespace ConsolePaint.Terminal
             {
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 
-                if (keyInfo.Key == ConsoleKey.Escape)
+                switch (keyInfo.Key)
                 {
-                    return;
-                }
-                else if (keyInfo.Key == ConsoleKey.Enter)
-                {
-                    if (selectedShape == null)
-                    {
-                        selectedShape = GetShapeAtCursor();
-                        PrintMessage(selectedShape is not null
-                            ? "Фигура выбрана. Стрелки перемещают её. [X] - удалить. [F] - заливка. Нажмите Enter для отмены выбора."
-                            : "Фигура не найдена под курсором.");
-                    }
-                    else
-                    {
-                        selectedShape = null;
-                        PrintMessage("Выбор снят. Стрелки перемещают курсор.");
-                    }
-                }
-                else if (keyInfo.Key == ConsoleKey.Z)  // Undo
-                {
-                    undoManager.Undo();
-                }
-                else if (keyInfo.Key == ConsoleKey.Y)  // Redo
-                {
-                    undoManager.Redo();
-                }
-                else if (keyInfo.Key == ConsoleKey.X)
-                {
-                    if (selectedShape != null)
-                    {
-                        var addAction = new RemoveShapeAction(canvas, selectedShape);
-                        undoManager.ExecuteAction(addAction);
-                        selectedShape = null;
-                        PrintMessage("Выбранная фигура удалена.");
-                    }
-                    else
-                    {
-                        PrintMessage("Нет выбранной фигуры для удаления.");
-                    }
-                }
-                else if (keyInfo.Key == ConsoleKey.D)
-                {
-                    ShowAddShapeMenu();
-                }
-                else if (keyInfo.Key == ConsoleKey.F)
-                {
-                    if (selectedShape != null)
-                    {
-                        PrintMessage("Введите символ заливки (Enter = +):");
-                        string fillSym = ReadLineAt(canvasHeight + 5);
-                        char fillSymbol = string.IsNullOrEmpty(fillSym) ? '+' : fillSym[0];
+                    case ConsoleKey.Escape:
+                        return;
 
-                        PrintMessage("Введите цвет заливки (например, Blue, Enter = White):");
-                        string fillCol = ReadLineAt(canvasHeight + 5);
-                        ConsoleColor fillColor = Enum.TryParse(fillCol, true, out fillColor) ? fillColor : ConsoleColor.White;
+                    case ConsoleKey.Enter:
+                        if (selectedShape == null)
+                        {
+                            selectedShape = GetShapeAtCursor();
+                            PrintMessage(selectedShape is not null
+                                ? "Фигура выбрана. Стрелки перемещают её. [X] - удалить. [F] - заливка. Нажмите Enter для отмены выбора."
+                                : "Фигура не найдена под курсором.");
+                        }
+                        else
+                        {
+                            selectedShape = null;
+                            PrintMessage("Выбор снят. Стрелки перемещают курсор.");
+                        }
+                        break;
 
-                        var fillAction = new FillShapeAction(canvas, selectedShape, fillSymbol, fillColor);
-                        undoManager.ExecuteAction(fillAction);
+                    case ConsoleKey.Z:
+                        undoManager.Undo();
+                        break;
 
-                        PrintMessage("Заливка применена. Дважды Нажмите Enter.");
-                        ReadLineAt(canvasHeight + 5);
-                    }
-                    else
-                    {
-                        PrintMessage("Нет выбранной фигуры для заливки.");
-                        ReadLineAt(canvasHeight + 5);
-                    }
-                }
-                else if (keyInfo.Key == ConsoleKey.S)
-                {
-                    SaveCanvas();
-                }
-                else if (keyInfo.Key == ConsoleKey.L)
-                {
-                    LoadCanvas();
-                }
-                else if (IsArrowKey(keyInfo.Key))
-                {
-                    int dx = 0, dy = 0;
-                    switch (keyInfo.Key)
-                    {
-                        case ConsoleKey.UpArrow: dy = -1; break;
-                        case ConsoleKey.DownArrow: dy = 1; break;
-                        case ConsoleKey.LeftArrow: dx = -1; break;
-                        case ConsoleKey.RightArrow: dx = 1; break;
-                    }
+                    case ConsoleKey.Y:
+                        undoManager.Redo();
+                        break;
 
-                    if (selectedShape != null)
-                    {
-                        var moveAction = new MoveShapeAction(canvas, selectedShape, dx, dy);
-                        undoManager.ExecuteAction(moveAction);
-                    }
-                    else
-                    {
-                        MoveCursor(dx, dy);
-                    }
+                    case ConsoleKey.X:
+                        if (selectedShape != null)
+                        {
+                            var removeAction = new RemoveShapeAction(canvas, selectedShape);
+                            undoManager.ExecuteAction(removeAction);
+                            selectedShape = null;
+                            PrintMessage("Выбранная фигура удалена.");
+                        }
+                        else
+                        {
+                            PrintMessage("Нет выбранной фигуры для удаления.");
+                        }
+                        break;
+
+                    case ConsoleKey.D:
+                        ShowAddShapeMenu();
+                        break;
+
+                    case ConsoleKey.F:
+                        if (selectedShape != null)
+                        {
+                            PrintMessage("Введите символ заливки (Enter = +):");
+                            string fillSym = ReadLineAt(canvasHeight + 5);
+                            char fillSymbol = string.IsNullOrEmpty(fillSym) ? '+' : fillSym[0];
+
+                            PrintMessage("Введите цвет заливки (например, Blue, Enter = White):");
+                            string fillCol = ReadLineAt(canvasHeight + 5);
+                            ConsoleColor fillColor = Enum.TryParse(fillCol, true, out fillColor) ? fillColor : ConsoleColor.White;
+
+                            var fillAction = new FillShapeAction(canvas, selectedShape, fillSymbol, fillColor);
+                            undoManager.ExecuteAction(fillAction);
+
+                            PrintMessage("Заливка применена. Дважды Нажмите Enter.");
+                            ReadLineAt(canvasHeight + 5);
+                        }
+                        else
+                        {
+                            PrintMessage("Нет выбранной фигуры для заливки.");
+                            ReadLineAt(canvasHeight + 5);
+                        }
+                        break;
+
+                    case ConsoleKey.S:
+                        SaveCanvas();
+                        break;
+
+                    case ConsoleKey.L:
+                        LoadCanvas();
+                        break;
+
+                    default:
+                        if (IsArrowKey(keyInfo.Key))
+                        {
+                            int dx = 0, dy = 0;
+                            switch (keyInfo.Key)
+                            {
+                                case ConsoleKey.UpArrow:
+                                    dy = -1;
+                                    break;
+                                case ConsoleKey.DownArrow:
+                                    dy = 1;
+                                    break;
+                                case ConsoleKey.LeftArrow:
+                                    dx = -1;
+                                    break;
+                                case ConsoleKey.RightArrow:
+                                    dx = 1;
+                                    break;
+                            }
+
+                            if (selectedShape != null)
+                            {
+                                var moveAction = new MoveShapeAction(canvas, selectedShape, dx, dy);
+                                undoManager.ExecuteAction(moveAction);
+                            }
+                            else
+                            {
+                                MoveCursor(dx, dy);
+                            }
+                        }
+                        break;
                 }
             }
         }
+
 
 
 

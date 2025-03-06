@@ -1,6 +1,6 @@
 ﻿namespace ConsolePaint
 {
-    public class Canvas
+    public class Canvas : ICanvas
     {
         private int width;
         private int height;
