@@ -4,7 +4,7 @@ namespace ConsolePaint.Shapes
 {
     public class Ellipse : Shape
     {
-        private int centerX, centerY, radiusX, radiusY;
+        private readonly int centerX, centerY, radiusX, radiusY;
         
         public Ellipse() : base() { }
 

@@ -161,9 +161,6 @@ namespace ConsolePaint.Terminal
             }
         }
 
-
-
-
         /// <summary>
         /// Меню для добавления новой фигуры: линия, точка, прямоугольник.
         /// </summary>
@@ -182,35 +179,30 @@ namespace ConsolePaint.Terminal
                     if (PromptLineInput(out int x1, out int y1, out int x2, out int y2, out char lineSym, out ConsoleColor lineColor))
                     {
                         s = ShapeFactory.CreateLine(x1, y1, x2, y2, lineSym, lineColor);
-                       // canvas.AddShape(s);
                     }
                     break;
                 case "2":
                     if (PromptPointInput(out int px, out int py, out char pSym, out ConsoleColor pColor))
                     {
                         s = ShapeFactory.CreatePoint(px, py, pSym, pColor);
-                        //canvas.AddShape(s);
                     }
                     break;
                 case "3":
                     if (PromptRectangleInput(out int rx1, out int ry1, out int rx2, out int ry2, out char rSym, out ConsoleColor rColor))
                     {
                         s = ShapeFactory.CreateRectangle(rx1, ry1, rx2, ry2, rSym, rColor);
-                       // canvas.AddShape(s);
                     }
                     break;
                 case "4":
                     if (PromptEllipseInput(out int ex, out int ey, out int exRadius, out int eyRadius, out char eSym, out ConsoleColor eColor))
                     {
                         s = ShapeFactory.CreateEllipse(ex, ey, exRadius, eyRadius, eSym, eColor);
-                        //canvas.AddShape(s);
                     }
                     break;
                 case "5":
                     if (PromptTriangleInput(out int tx1, out int ty1, out int tx2, out int ty2, out int tx3, out int ty3, out char tSym, out ConsoleColor tColor))
                     {
                         s = ShapeFactory.CreateTriangle(tx1, ty1, tx2, ty2, tx3, ty3, tSym, tColor);
-                       // canvas.AddShape(s);
                     }
                     break;
                 default:
@@ -240,7 +232,7 @@ namespace ConsolePaint.Terminal
             int row = canvasHeight + 2;
             ClearLine(row);
             Console.SetCursorPosition(0, row);
-            Console.WriteLine("Меню: [D] - добавить фигуру, [S] - сохранить, [L] - загрузить, [Enter] - выбрать/снять выбор, [Esc] - выход");
+            Console.WriteLine("Меню: [D] - добавить фигуру, [S] - сохранить, [L] - загрузить, [Enter] - выбрать/снять выбор, [Z]/[Y] назад/вперед,\n\t\t\t\t\t[Esc] - выход из приложения");
         }
 
         

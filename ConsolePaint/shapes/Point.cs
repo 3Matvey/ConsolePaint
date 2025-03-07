@@ -4,7 +4,7 @@ namespace ConsolePaint.Shapes
 {
     public class Point : Shape
     {
-        private int x, y;
+        private readonly int x, y;
 
         public Point() : base() { }
         public Point(int x, int y, char symbol, ConsoleColor color)

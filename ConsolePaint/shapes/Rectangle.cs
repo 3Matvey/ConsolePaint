@@ -2,7 +2,7 @@
 {
     public class Rectangle : Shape
     {
-        private int x1, y1, x2, y2;
+        private readonly int x1, y1, x2, y2;
 
         public Rectangle() : base() { }
 
@@ -13,34 +13,39 @@
             this.y1 = y1;
             this.x2 = x2;
             this.y2 = y2;
-            CalculatePixels();          }
+            CalculatePixels();          
+        }
 
         protected override void CalculatePixels()
         {
             OuterPixels.Clear();
             InnerPixels.Clear();
 
-            // границы прямоугольника
-            for (int x = x1; x <= x2; x++)
+            int left = Math.Min(x1, x2);
+            int right = Math.Max(x1, x2);
+            int top = Math.Min(y1, y2);
+            int bottom = Math.Max(y1, y2);
+
+            for (int x = left; x <= right; x++)
             {
-                OuterPixels.Add(new Pixel(x, y1, Symbol, Color)); 
-                OuterPixels.Add(new Pixel(x, y2, Symbol, Color)); 
+                OuterPixels.Add(new Pixel(x, top, Symbol, Color));
+                OuterPixels.Add(new Pixel(x, bottom, Symbol, Color));
             }
 
-            for (int y = y1; y <= y2; y++)
+            for (int y = top; y <= bottom; y++)
             {
-                OuterPixels.Add(new Pixel(x1, y, Symbol, Color)); 
-                OuterPixels.Add(new Pixel(x2, y, Symbol, Color)); 
+                OuterPixels.Add(new Pixel(left, y, Symbol, Color));
+                OuterPixels.Add(new Pixel(right, y, Symbol, Color));
             }
 
-            // внутри
-            for (int x = x1 + 1; x < x2; x++)
+            for (int x = left + 1; x < right; x++)
             {
-                for (int y = y1 + 1; y < y2; y++)
+                for (int y = top + 1; y < bottom; y++)
                 {
-                    InnerPixels.Add(new Pixel(x, y, ' ', Color)); 
+                    InnerPixels.Add(new Pixel(x, y, ' ', Color));
                 }
             }
         }
+
     }
 }
