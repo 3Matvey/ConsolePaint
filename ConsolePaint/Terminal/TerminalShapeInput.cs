@@ -10,48 +10,56 @@ namespace ConsolePaint.Terminal
             x = y = radiusX = radiusY = 0;
             symbol = '*';
             color = ConsoleColor.White;
-
-            // Проверяем, что координаты центра входят в холст
-            PrintMessage("Введите координаты центра (X):");
-            if (!TryReadIntInRange(out x, 0, canvasWidth - 1)) return false;
-
-            PrintMessage("Введите координаты центра (Y):");
-            if (!TryReadIntInRange(out y, 0, canvasHeight - 1)) return false;
-            TempPointDraw(x, y, out Shape tempPoint);
-
-            // Читаем радиус по X и проверяем, чтобы фигура не выходила за пределы холста
-            PrintMessage("Введите радиус по X:");
-            if (!TryReadInt(out radiusX)) return false;
-            int maxRadiusX = Math.Min(x, canvasWidth - 1 - x);
-            if (radiusX < 1 || radiusX > maxRadiusX)
+            Shape tempPoint = null!;
+            try
             {
-                PrintMessage($"Радиус по X должен быть от 1 до {maxRadiusX}.");
-                return false;
+                // Проверяем, что координаты центра входят в холст
+                PrintMessage("Введите координаты центра (X):");
+                if (!TryReadIntInRange(out x, 0, canvasWidth - 1)) return false;
+
+                PrintMessage("Введите координаты центра (Y):");
+                if (!TryReadIntInRange(out y, 0, canvasHeight - 1)) return false;
+                TempPointDraw(x, y, out tempPoint);
+
+                // Читаем радиус по X и проверяем, чтобы фигура не выходила за пределы холста
+                PrintMessage("Введите радиус по X:");
+                if (!TryReadIntInRange(out radiusX, 1, canvasWidth / 2 - 1)) return false;
+                int maxRadiusX = Math.Min(x, canvasWidth - 1 - x);
+                if (radiusX < 1 || radiusX > maxRadiusX)
+                {
+                    PrintMessage($"Радиус по X должен быть от 1 до {maxRadiusX}.");
+                    return false;
+                }
+
+                // Читаем радиус по Y и аналогичная проверка
+                PrintMessage("Введите радиус по Y:");
+                if (!TryReadIntInRange(out radiusY, 1, canvasHeight / 2 - 1)) return false;
+                int maxRadiusY = Math.Min(y, canvasHeight - 1 - y);
+                if (radiusY < 1 || radiusY > maxRadiusY)
+                {
+                    PrintMessage($"Радиус по Y должен быть от 1 до {maxRadiusY}.");
+                    return false;
+                }
+
+                PrintMessage("Символ для эллипса (Enter=*)");
+                string symInput = ReadLineAt(canvasHeight + 5);
+                if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
+
+                PrintMessage("Цвет (Enter=White)");
+                string colInput = ReadLineAt(canvasHeight + 5);
+                if (!string.IsNullOrEmpty(colInput))
+                {
+                    if (!Enum.TryParse(colInput, true, out color))
+                        color = ConsoleColor.White;
+                }
+
+                return true;
             }
 
-            // Читаем радиус по Y и аналогичная проверка
-            PrintMessage("Введите радиус по Y:");
-            if (!TryReadInt(out radiusY)) return false;
-            int maxRadiusY = Math.Min(y, canvasHeight - 1 - y);
-            if (radiusY < 1 || radiusY > maxRadiusY)
+            finally
             {
-                PrintMessage($"Радиус по Y должен быть от 1 до {maxRadiusY}.");
-                return false;
+                TempPointsRemove([tempPoint]);
             }
-
-            PrintMessage("Символ для эллипса (Enter=*)");
-            string symInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
-
-            PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(colInput))
-            {
-                if (!Enum.TryParse(colInput, true, out color))
-                    color = ConsoleColor.White;
-            }
-            TempPointsRemove([tempPoint]);
-            return true;
         }
 
 
@@ -60,38 +68,45 @@ namespace ConsolePaint.Terminal
             x1 = y1 = x2 = y2 = x3 = y3 = 0;
             symbol = '*';
             color = ConsoleColor.White;
-
-            PrintMessage("Введите координаты первой вершины (X1):");
-            if (!TryReadIntInRange(out x1, 0, canvasWidth - 1)) return false;
-            PrintMessage("Введите координаты первой вершины (Y1):");
-            if (!TryReadIntInRange(out y1, 0, canvasHeight - 1)) return false;
-            TempPointDraw(x1, y1, out Shape tempPoint1);
-
-            PrintMessage("Введите координаты второй вершины (X2):");
-            if (!TryReadIntInRange(out x2, 0, canvasWidth - 1)) return false;
-            PrintMessage("Введите координаты второй вершины (Y2):");
-            if (!TryReadIntInRange(out y2, 0, canvasHeight - 1)) return false;
-            TempPointDraw(x2, y2, out Shape tempPoint2);
-
-            PrintMessage("Введите координаты третьей вершины (X3):");
-            if (!TryReadIntInRange(out x3, 0, canvasWidth - 1)) return false;
-            PrintMessage("Введите координаты третьей вершины (Y3):");
-            if (!TryReadIntInRange(out y3, 0, canvasHeight - 1)) return false;
-            TempPointDraw(x3, y3, out Shape tempPoint3);
-
-            PrintMessage("Символ для треугольника (Enter=*)");
-            string symInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
-
-            PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(colInput))
+            Shape tempPoint1, tempPoint2, tempPoint3;
+            tempPoint1 = tempPoint2 = tempPoint3 = null!;
+            try
             {
-                if (!Enum.TryParse(colInput, true, out color))
-                    color = ConsoleColor.White;
+                PrintMessage("Введите координаты первой вершины (X1):");
+                if (!TryReadIntInRange(out x1, 0, canvasWidth - 1)) return false;
+                PrintMessage("Введите координаты первой вершины (Y1):");
+                if (!TryReadIntInRange(out y1, 0, canvasHeight - 1)) return false;
+                TempPointDraw(x1, y1, out tempPoint1);
+
+                PrintMessage("Введите координаты второй вершины (X2):");
+                if (!TryReadIntInRange(out x2, 0, canvasWidth - 1)) return false;
+                PrintMessage("Введите координаты второй вершины (Y2):");
+                if (!TryReadIntInRange(out y2, 0, canvasHeight - 1)) return false;
+                TempPointDraw(x2, y2, out tempPoint2);
+
+                PrintMessage("Введите координаты третьей вершины (X3):");
+                if (!TryReadIntInRange(out x3, 0, canvasWidth - 1)) return false;
+                PrintMessage("Введите координаты третьей вершины (Y3):");
+                if (!TryReadIntInRange(out y3, 0, canvasHeight - 1)) return false;
+                TempPointDraw(x3, y3, out tempPoint3);
+
+                PrintMessage("Символ для треугольника (Enter=*)");
+                string symInput = ReadLineAt(canvasHeight + 5);
+                if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
+
+                PrintMessage("Цвет (Enter=White)");
+                string colInput = ReadLineAt(canvasHeight + 5);
+                if (!string.IsNullOrEmpty(colInput))
+                {
+                    if (!Enum.TryParse(colInput, true, out color))
+                        color = ConsoleColor.White;
+                }
+                return true;
             }
-            TempPointsRemove([tempPoint1, tempPoint2, tempPoint3]);
-            return true;
+            finally
+            {
+                TempPointsRemove([tempPoint1, tempPoint2, tempPoint3]);
+            }
         }
 
 
@@ -102,37 +117,44 @@ namespace ConsolePaint.Terminal
         private bool PromptLineInput(out int x1, out int y1, out int x2, out int y2,
                                out char symbol, out ConsoleColor color)
         {
+            Shape tempPoint1, tempPoint2;
+            tempPoint1 = tempPoint2 = null!;
             x1 = y1 = x2 = y2 = 0;
             symbol = '*';
             color = ConsoleColor.White;
-
-            PrintMessage("Введите X1:");
-            if (!TryReadIntInRange(out x1, 0, canvasWidth - 1)) return false;
-
-            PrintMessage("Введите Y1:");
-            if (!TryReadIntInRange(out y1, 0, canvasHeight - 1)) return false;
-            TempPointDraw(x1, y1, out Shape tempPoint1);
-
-            PrintMessage("Введите X2:");
-            if (!TryReadIntInRange(out x2, 0, canvasWidth - 1)) return false;
-
-            PrintMessage("Введите Y2:");
-            if (!TryReadIntInRange(out y2, 0, canvasHeight - 1)) return false;
-            TempPointDraw(x2, y2, out Shape tempPoint2);
-
-            PrintMessage("Символ для линии (Enter=*)");
-            string symInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
-
-            PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(colInput))
+            try
             {
-                if (!Enum.TryParse(colInput, true, out color))
-                    color = ConsoleColor.White;
+                PrintMessage("Введите X1:");
+                if (!TryReadIntInRange(out x1, 0, canvasWidth - 1)) return false;
+
+                PrintMessage("Введите Y1:");
+                if (!TryReadIntInRange(out y1, 0, canvasHeight - 1)) return false;
+                TempPointDraw(x1, y1, out tempPoint1);
+
+                PrintMessage("Введите X2:");
+                if (!TryReadIntInRange(out x2, 0, canvasWidth - 1)) return false;
+
+                PrintMessage("Введите Y2:");
+                if (!TryReadIntInRange(out y2, 0, canvasHeight - 1)) return false;
+                TempPointDraw(x2, y2, out tempPoint2);
+
+                PrintMessage("Символ для линии (Enter=*)");
+                string symInput = ReadLineAt(canvasHeight + 5);
+                if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
+
+                PrintMessage("Цвет (Enter=White)");
+                string colInput = ReadLineAt(canvasHeight + 5);
+                if (!string.IsNullOrEmpty(colInput))
+                {
+                    if (!Enum.TryParse(colInput, true, out color))
+                        color = ConsoleColor.White;
+                }
+                return true;
             }
-            TempPointsRemove([tempPoint1, tempPoint2]);
-            return true;
+            finally
+            {
+                TempPointsRemove([tempPoint1, tempPoint2]);
+            }
         }
 
 
@@ -175,34 +197,41 @@ namespace ConsolePaint.Terminal
             x1 = y1 = x2 = y2 = default;
             symbol = '#';
             color = ConsoleColor.White;
-
-            PrintMessage("Введите X первой вершины:");
-            if (!TryReadIntInRange(out x1, 0, canvasWidth - 1)) return false;
-
-            PrintMessage("Введите Y первой вершины:");
-            if (!TryReadIntInRange(out y1, 0, canvasHeight - 1)) return false;
-            TempPointDraw(x1, y1, out Shape tempPoint1);
-
-            PrintMessage("Введите X второй вершины:");
-            if (!TryReadIntInRange(out x2, 0, canvasWidth - 1)) return false;
-
-            PrintMessage("Введите Y второй вершины:");
-            if (!TryReadIntInRange(out y2, 0, canvasHeight - 1)) return false;
-            TempPointDraw(x2, y2, out Shape tempPoint2);
-
-            PrintMessage("Символ прямоугольника (Enter=#)");
-            string symInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
-
-            PrintMessage("Цвет (Enter=White)");
-            string colInput = ReadLineAt(canvasHeight + 5);
-            if (!string.IsNullOrEmpty(colInput))
+            Shape tempPoint1, tempPoint2;
+            tempPoint1 = tempPoint2 = null!;
+            try
             {
-                if (!Enum.TryParse(colInput, true, out color))
-                    color = ConsoleColor.White;
+                PrintMessage("Введите X первой вершины:");
+                if (!TryReadIntInRange(out x1, 0, canvasWidth - 1)) return false;
+
+                PrintMessage("Введите Y первой вершины:");
+                if (!TryReadIntInRange(out y1, 0, canvasHeight - 1)) return false;
+                TempPointDraw(x1, y1, out tempPoint1);
+
+                PrintMessage("Введите X второй вершины:");
+                if (!TryReadIntInRange(out x2, 0, canvasWidth - 1)) return false;
+
+                PrintMessage("Введите Y второй вершины:");
+                if (!TryReadIntInRange(out y2, 0, canvasHeight - 1)) return false;
+                TempPointDraw(x2, y2, out tempPoint2);
+
+                PrintMessage("Символ прямоугольника (Enter=#)");
+                string symInput = ReadLineAt(canvasHeight + 5);
+                if (!string.IsNullOrEmpty(symInput)) symbol = symInput[0];
+
+                PrintMessage("Цвет (Enter=White)");
+                string colInput = ReadLineAt(canvasHeight + 5);
+                if (!string.IsNullOrEmpty(colInput))
+                {
+                    if (!Enum.TryParse(colInput, true, out color))
+                        color = ConsoleColor.White;
+                }
+                return true;
             }
-            TempPointsRemove([tempPoint1, tempPoint2]);
-            return true;
+            finally
+            {
+                TempPointsRemove([tempPoint1, tempPoint2]);
+            }
         }
 
         /// <summary>
@@ -219,6 +248,20 @@ namespace ConsolePaint.Terminal
                 return false;
             }
             return true;
+
+            bool TryReadInt(out int result)
+            {
+                FlushInput();
+                int row = canvasHeight + 5;
+                string input = ReadLineAt(row);
+                if (!int.TryParse(input, out result))
+                {
+                    PrintMessage("Ошибка ввода (не целое число)!");
+                    ReadLineAt(row);  // Ждать Enter
+                    return false;
+                }
+                return true;
+            }
         }
 
 
@@ -245,7 +288,7 @@ namespace ConsolePaint.Terminal
             if (!filename.EndsWith(".json"))
             {
                 filename += ".json";
-            } 
+            }
             FileManager.SaveShapesToFile(canvas.Shapes, filename);
             PrintMessage("Холст сохранен в " + filename + ". Нажмите Enter.");
             ReadLineAt(canvasHeight + 5);
@@ -258,9 +301,9 @@ namespace ConsolePaint.Terminal
             LoadCanvas(filename);
         }
 
-        private void LoadCanvas(string filename) 
+        private void LoadCanvas(string filename)
         {
-            if (!filename.EndsWith(".json")) 
+            if (!filename.EndsWith(".json"))
             {
                 filename += ".json";
             }

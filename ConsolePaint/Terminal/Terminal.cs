@@ -296,23 +296,6 @@ namespace ConsolePaint.Terminal
         }
 
         /// <summary>
-        /// Считывает одно целое число. Возвращает false, если ввод некорректен.
-        /// </summary>
-        private bool TryReadInt(out int result)
-        {
-            FlushInput();
-            int row = canvasHeight + 5;
-            string input = ReadLineAt(row);
-            if (!int.TryParse(input, out result))
-            {
-                PrintMessage("Ошибка ввода (не целое число)!");
-                ReadLineAt(row);  // Ждать Enter
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
         /// Считывает строку на указанной строке (row) и очищает её после ввода.
         /// </summary>
         private static string ReadLineAt(int row)
