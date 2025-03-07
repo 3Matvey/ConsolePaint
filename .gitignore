@@ -1,1 +1,22 @@
-**/bin/ **/obj/
+# Промежуточные и выходные папки сборки
+[Bb]in/
+[Oo]bj/
+
+# Папка Visual Studio
+.vs/
+
+# Настройки пользователя Visual Studio
+*.user
+*.suo
+
+# Файлы журнала и временные
+*.log
+*.cache
+*.tmp
+
+# Результаты тестов
+TestResults/
+*.TestResults/
+*.trx
+*.coverage
+*.coveragexml
